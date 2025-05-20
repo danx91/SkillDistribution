@@ -1,0 +1,20 @@
+{
+	"info":{
+		"name": "skilldistribution",
+		"version": "1.0.0",
+		"spt": "3.10.5"
+	},
+	"dest": {
+		"client": "BepInEx/plugins/",
+		"server": "user/mods/zgfuedkx-skilldistribution/"
+	},
+	"files": {
+		"SkillDistribution-Server/package.json": "server",
+		"SkillDistribution-Server/src": "server",
+		"SkillDistribution-Server/config": "server",
+		"SkillDistribution-Core/bin/Release/SkillDistribution.dll": "client"
+	},
+	"ignore": [
+		"**/*.md"
+	]
+}

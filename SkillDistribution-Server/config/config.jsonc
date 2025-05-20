@@ -1,0 +1,46 @@
+{
+	// Is client allowed to override this config? Recommended: true for vanilla, false for Fika
+	// IMPORTANT: if set to true, changes in this file will not affect any players!
+	// Default: true
+	"allow_override": true,
+
+	// Determines how XP is distributed
+	// Allowed modes:
+		// Equal - All experience is equally distributed to all skills (if there is not enough XP, random will be used instead)
+		// RoundRobin - Distribute XP to one skill after another in cyclic manner
+		// Random - Distribute XP to random skill(s)
+		// WeightedRandomMin - Distribute XP to random skill(s), skill with lower level have higher chance
+		// WeightedRandomMax - Distribute XP to random skill(s), skill with higher level have higher chance
+		// Min - Distribute XP to skill(s) with lowest level
+		// Max - Distribute XP to skill(s) with highest level
+	// My personal favorite is WeightedRandomMax (so I put it as default mode) but feel free to experiment with different ones
+	// Default: WeightedRandomMax
+	"distribution_mode": "WeightedRandomMax",
+
+	// Controls to how many skills XP will be distributed if using: Random, WeightedRandomMin, WeightedRandomMax, Min or Max
+	// Default: 3
+	"skills_count": 3,
+
+	// Should XP from gym be also distributed if strength and endurance is maxed?
+	// Default: true
+	"allow_gym": true,
+
+	// Should distributed XP use target skill bonuses?
+	// Set this to false if you want to avoid double bonuses
+	// (e.g. Gain metabolism XP -> metabolism bonus is applied -> distribute to stress resistance -> stress resistance bonus is applied -> add XP with 2 bonuses)
+	// When set to false, above example will skip stress resistance bonus but will keep metabolism bonus
+	// Also, keep in mind that setting this to false will prevent negative effects of effectiveness (fatigue) as well as positive effects (150% on first gained point)!
+	// Default: true
+	"use_bonuses": true,
+
+	// Should distributed XP use and cause traget skill fatigue?
+	// It is recommended to set this to false if using Random, WeightedRandomMin, WeightedRandomMax, Min or Max as these modes will quickly cause fatigue
+	// Default: true
+	"use_effectiveness": true,
+
+	// Should distributed XP cause traget skill fatigue when use_effectiveness is false?
+	// Iportant: When use_effectiveness is true, this option has no effect as using effectiveness causes fatigue by default!
+	// Note: Setting this to false will not show green progress bar showing XP gained in current raid - base (gray) XP will increase instead
+	// Default: true
+	"cause_fatigue": true
+}
