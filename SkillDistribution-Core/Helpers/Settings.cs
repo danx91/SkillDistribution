@@ -20,7 +20,7 @@ namespace SkillDistribution.Helpers
             DistributionMode = config.Bind(
                 "1. General config",
                 "Experience distribution mode",
-                SkillHelper.EDistributionMode.Equal,
+                SkillHelper.EDistributionMode.WeightedRandomMax,
                 MakeDescription("Determines how skill experience is distributed\n" +
                     "Equal - All experience is equally distributed to all skills (if there is not enough XP, random will be used instead)\n" +
                     "RoundRobin - Distribute XP to one skill after another in cyclic manner\n" +

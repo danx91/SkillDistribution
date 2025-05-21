@@ -2,7 +2,7 @@
 	"info":{
 		"name": "skilldistribution",
 		"version": "1.0.0",
-		"spt": "3.10.5"
+		"spt": "3.11"
 	},
 	"dest": {
 		"client": "BepInEx/plugins/",

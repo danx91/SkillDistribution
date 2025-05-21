@@ -3,9 +3,9 @@ import path from "node:path";
 import { DependencyContainer } from "tsyringe";
 import { IPreSptLoadMod } from "@spt/models/external/IPreSptLoadMod";
 import { StaticRouterModService } from "@spt/services/mod/staticRouter/StaticRouterModService";
-import { VFS } from "@spt/utils/VFS";
 
 import { jsonc } from "jsonc";
+import { FileSystemSync } from "@spt/utils/FileSystemSync";
 
 class Mod implements IPreSptLoadMod
 {
@@ -13,8 +13,8 @@ class Mod implements IPreSptLoadMod
 
     public preSptLoad(container: DependencyContainer): void
     {
-        const vfs = container.resolve<VFS>("VFS");
-        this.modConfig = jsonc.parse(vfs.readFile(path.resolve(__dirname, "../config/config.jsonc")))
+        const fileSystem = container.resolve<FileSystemSync>("FileSystemSync");
+        this.modConfig = jsonc.parse(fileSystem.read(path.resolve(__dirname, "../config/config.jsonc")))
 
         const staticRouter = container.resolve<StaticRouterModService>("StaticRouterModService");
 

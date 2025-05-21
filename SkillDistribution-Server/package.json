@@ -1,7 +1,7 @@
 {
     "name": "skill-distribution",
     "version": "1.0.0",
-    "sptVersion": "3.10.5",
+    "sptVersion": "~3.11",
     "loadBefore": [],
     "loadAfter": [],
     "incompatibilities": [],

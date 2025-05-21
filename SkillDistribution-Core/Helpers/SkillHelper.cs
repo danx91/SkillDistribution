@@ -121,7 +121,7 @@ namespace SkillDistribution.Helpers
 
             foreach (SkillClass skill in manager.DisplayList)
             {
-                if(!skill.Locked && skill.Current < ELITE_LEVEL /*&& !(skill is GClass1979)*/)
+                if(!skill.Locked && skill.Current < ELITE_LEVEL)
                 {
                     skills.Add(skill);
                 }

@@ -18,7 +18,7 @@ namespace SkillDistribution.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(WorkoutBehaviour), nameof(WorkoutBehaviour.method_17));
+            return AccessTools.Method(typeof(WorkoutBehaviour), nameof(WorkoutBehaviour.method_18));
         }
 
         [PatchPrefix]
@@ -65,7 +65,7 @@ namespace SkillDistribution.Patches
 
                 if (skills.Length <= 3)
                 {
-                    NotificationManagerClass.DisplayNotification(new GClass2269(
+                    NotificationManagerClass.DisplayNotification(new GClass2314(
                         string.Format(
                             "Skill '{0}' increased by {1}".Localized(null),
                             skill.Id.ToString().Localized(null),
@@ -79,7 +79,7 @@ namespace SkillDistribution.Patches
 
             if (skills.Length > 3)
             {
-                NotificationManagerClass.DisplayNotification(new GClass2269(
+                NotificationManagerClass.DisplayNotification(new GClass2314(
                     $"Total of {skills.Length} skills increased during workout",
                     ENotificationDurationType.Default,
                     ENotificationIconType.Default,
@@ -93,7 +93,7 @@ namespace SkillDistribution.Patches
             out float xpMult, out QteEffect.SkillExperienceMultiplierData[] multipliers)
         {
             QteEffect[] qteAllEffects = qteHandleData.Results[QteData.EQteEffectType.SingleSuccessEffect].Effects;
-            QteEffect[] qteEffects = qteAllEffects.Where(new Func<QteEffect, bool>(workoutBehaviour.method_20)).ToArray();
+            QteEffect[] qteEffects = qteAllEffects.Where(new Func<QteEffect, bool>(workoutBehaviour.method_21)).ToArray();
 
             if (qteEffects.Length > 0)
             {

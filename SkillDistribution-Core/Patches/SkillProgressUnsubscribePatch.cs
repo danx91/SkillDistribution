@@ -16,8 +16,6 @@ namespace SkillDistribution.Patches
 
     class SkillUnsubscribePatch : ModulePatch
     {
-        private static bool _fromMethod3 = false;
-
         protected override MethodBase GetTargetMethod()
         {
             return AccessTools.Method(typeof(SkillClass), nameof(SkillClass.method_3));
@@ -26,20 +24,20 @@ namespace SkillDistribution.Patches
         [PatchPrefix]
         static bool Prefix()
         {
-            _fromMethod3 = true;
+            AbstractSkillUnsubscribePatch._fromMethod3 = true;
             return true;
         }
 
         [PatchPostfix]
         static void Postfix()
         {
-            _fromMethod3 = false;
+            AbstractSkillUnsubscribePatch._fromMethod3 = false;
         }
     }
 
     class AbstractSkillUnsubscribePatch : ModulePatch
     {
-        public static bool fromMethod3 = false;
+        public static bool _fromMethod3 = false;
 
         protected override MethodBase GetTargetMethod()
         {
@@ -49,8 +47,12 @@ namespace SkillDistribution.Patches
         [PatchPrefix]
         static bool Prefix(AbstractSkillClass __instance)
         {
-            Plugin.LogDebug($"Preventing events unsubscribe on {__instance.Id}");
-            return fromMethod3;
+            if (!_fromMethod3)
+            {
+                Plugin.LogDebug($"Preventing events unsubscribe on {__instance.Id}");
+            }
+
+            return !_fromMethod3;
         }
     }
 }

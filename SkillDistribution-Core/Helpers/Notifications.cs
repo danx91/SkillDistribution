@@ -6,7 +6,7 @@ namespace SkillDistribution.Helpers
     {
         public static void ShowNotification(string message, ENotificationIconType notificationType = ENotificationIconType.Quest)
         {
-            NotificationManagerClass.DisplayNotification(new GClass2269(
+            NotificationManagerClass.DisplayNotification(new GClass2314(
                 message,
                 ENotificationDurationType.Long,
                 notificationType
