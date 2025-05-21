@@ -1,6 +1,7 @@
 ﻿using static SkillDistribution.Helpers.SkillHelper;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace SkillDistribution.Helpers
 {
@@ -111,7 +112,7 @@ namespace SkillDistribution.Helpers
 
             foreach (SkillClass skill in skills)
             {
-                weights.Add(mode == ECompareMode.Min ? (ELITE_LEVEL - skill.Current) : skill.Current);
+                weights.Add(Math.Max(mode == ECompareMode.Min ? (ELITE_LEVEL - skill.Current) : skill.Current, 1000));
             }
 
             float sum = weights.Sum();
