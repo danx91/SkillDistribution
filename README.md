@@ -1,7 +1,7 @@
 # Skill Distribution
 A mod for SPT that adds new functionalities to skill progression. Once you hit elite level on any skill, you can still earn XP in this category. Doing so distributes experience that you would gain to other non-elite skills according to your settings. Works with Fika.
 
-More detailed description and screenshots are available on [SPT Hub](https://hub.sp-tarkov.com/files/file/TODO/).
+More detailed description and screenshots are available on [SPT Hub](https://hub.sp-tarkov.com/files/file/2843-skill-distribution/).
 
 ## Installation
 1. Make sure that both SPT Client and SPT Server are not running
@@ -24,7 +24,7 @@ You can access config while in-game by pressing `F12` key and then selecting `Sk
 * **Allow gym** - Whether or not XP from gym should be also distributed if strength/endurance is maxed
 * **Use bonuses** - Whether or not distributed XP used target skill bonuses
 * **Use effectiveness** - Whether or not distributed XP use and cause traget skill fatigue
-* **Cause fatigue** - Whether or not distributed XP cause traget skill fatigue when use_effectiveness is false. This option has no effect if use effectiveness is set to true
+* **Cause fatigue** - Whether or not distributed XP cause target skill fatigue when use_effectiveness is false. This option has no effect if use effectiveness is set to true
 * **Reset to server values** - Pull settings from server and apply them
 
 
