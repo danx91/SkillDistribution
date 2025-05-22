@@ -45,7 +45,9 @@ namespace SkillDistribution.Patches
 
             Plugin.LogDebug($"Workout skills: {skills.Length}, xpMult: {xpMult}, effectiveness: {effectiveness}");
 
-            foreach(SkillClass skill in skills)
+            xpMult *= Settings.GymExperienceMultiplier.Value;
+
+            foreach (SkillClass skill in skills)
             {
                 float skillMultiplier = 0f;
                 foreach (QteEffect.SkillExperienceMultiplierData multiplierData in multipliers)
@@ -61,7 +63,7 @@ namespace SkillDistribution.Patches
 
                 skill.SetCurrent(skill.Current + xp, true);
                 skill.AddPointsEarnedForWorkout(xp);
-                Plugin.LogDebug($"\tGym - skill: {skill.Id}, xp: {xp}, skillMult: {skillMultiplier}, factor: {factor}");
+                Plugin.LogDebug($"\tGym - skill: {skill.Id}, xp: {xp}, skillMult: {skillMultiplier}, factor: {factor}, userMult: {Settings.GymExperienceMultiplier.Value}");
 
                 if (skills.Length <= 3)
                 {

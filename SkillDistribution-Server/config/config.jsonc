@@ -29,18 +29,29 @@
 	// Set this to false if you want to avoid double bonuses
 	// (e.g. Gain metabolism XP -> metabolism bonus is applied -> distribute to stress resistance -> stress resistance bonus is applied -> add XP with 2 bonuses)
 	// When set to false, above example will skip stress resistance bonus but will keep metabolism bonus
-	// Also, keep in mind that setting this to false will prevent negative effects of effectiveness (fatigue) as well as positive effects (150% on first gained point)!
 	// Default: true
 	"use_bonuses": true,
-
-	// Should distributed XP use and cause traget skill fatigue?
+	
+	// Should distributed XP use and cause target skill fatigue?
 	// It is recommended to set this to false if using Random, WeightedRandomMin, WeightedRandomMax, Min or Max as these modes will quickly cause fatigue
+	// Also, keep in mind that setting this to false will prevent negative effects of effectiveness (fatigue) as well as positive effects (150% on first gained point)!
 	// Default: true
 	"use_effectiveness": true,
 
-	// Should distributed XP cause traget skill fatigue when use_effectiveness is false?
+	// Should distributed XP cause target skill fatigue when use_effectiveness is false?
 	// Iportant: When use_effectiveness is true, this option has no effect as using effectiveness causes fatigue by default!
 	// Note: Setting this to false will not show green progress bar showing XP gained in current raid - base (gray) XP will increase instead
+	// My personal recommendation, if you want to progress faster but still see green bar, is to set use_effectiveness to false and cause_fatigue to true
 	// Default: true
-	"cause_fatigue": true
+	"cause_fatigue": true,
+
+	// Multiplier of distributed XP
+	// This multiplier is applied before any other multipliers
+	// Default: 1
+	"xp_multiplier": 1,
+
+	// Multiplier of distributed XP during workout
+	// This multiplier is applied before any other multipliers
+	// Default: 1
+	"gym_multiplier": 1
 }

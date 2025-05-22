@@ -1,10 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using BepInEx.Configuration;
+using Newtonsoft.Json.Linq;
 using SPT.Common.Http;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SkillDistribution.Helpers
 {
@@ -18,24 +15,19 @@ namespace SkillDistribution.Helpers
 
             JObject config = JObject.Parse(RequestHandler.GetJson("/skill-distribution/config"));
 
-            if (bool.TryParse(config["allow_override"]?.Value<string>(), out bool allowOverride))
+            ParseAndApply<bool>(config, "allow_override", bool.TryParse, callback: allowOverride =>
             {
                 AllowOverride = allowOverride;
 
-                Settings.DistributionMode.SetReadOnly(!allowOverride);
-                Settings.SkillsCount.SetReadOnly(!allowOverride);
-                Settings.AllowGym.SetReadOnly(!allowOverride);
-
-                Plugin.LogDebug($"Allow override: {allowOverride}");
-
-                if (allowOverride && !force)
+                foreach (ConfigEntryBase entry in Settings.ConfigEntries)
                 {
-                    return;
+                    entry.SetReadOnly(!allowOverride);
                 }
-            }
-            else
+            });
+
+            if (AllowOverride && !force)
             {
-                Plugin.LogSource.LogError("Failed to parse allow_override");
+                return;
             }
 
             if (Enum.TryParse(config["distribution_mode"]?.Value<string>(), true, out SkillHelper.EDistributionMode mode))
@@ -48,55 +40,40 @@ namespace SkillDistribution.Helpers
                 Plugin.LogSource.LogError("Failed to parse distribution_mode");
             }
 
-            if (int.TryParse(config["skills_count"]?.Value<string>(), out int count))
-            {
-                Settings.SkillsCount.Value = count;
-                Plugin.LogDebug($"Skills count: {count}");
-            }
-            else
-            {
-                Plugin.LogSource.LogError("Failed to parse skills_count");
-            }
+            ParseAndApply(config, "skills_count", int.TryParse, Settings.SkillsCount);
+            ParseAndApply(config, "allow_gym", bool.TryParse, Settings.AllowGym);
+            ParseAndApply(config, "use_effectiveness", bool.TryParse, Settings.UseEffectiveness);
+            ParseAndApply(config, "cause_fatigue", bool.TryParse, Settings.CauseFatigue);
+            ParseAndApply(config, "use_bonuses", bool.TryParse, Settings.UseBonuses);
+            ParseAndApply(config, "xp_multiplier", float.TryParse, Settings.ExperienceMultiplier);
+            ParseAndApply(config, "gym_multiplier", float.TryParse, Settings.GymExperienceMultiplier);
+        }
 
-            if (bool.TryParse(config["allow_gym"]?.Value<string>(), out bool allowGym))
+        public static void ParseAndApply<T>(
+            JObject config,
+            string key,
+            TryParseDelegate<T> tryParse,
+            ConfigEntry<T> entry = null,
+            Action<T> callback = null)
+        {
+            string rawValue = config[key]?.Value<string>();
+            if (rawValue != null && tryParse(rawValue, out T result))
             {
-                Settings.AllowGym.Value = allowGym;
-                Plugin.LogDebug($"Allow gym: {allowGym}");
-            }
-            else
-            {
-                Plugin.LogSource.LogError("Failed to parse allow_gym");
-            }
+                Plugin.LogDebug($"{entry?.Definition.Key ?? key}: {result}");
 
-            if (bool.TryParse(config["use_bonuses"]?.Value<string>(), out bool useBonuses))
-            {
-                Settings.UseBonuses.Value = useBonuses;
-                Plugin.LogDebug($"Use bonuses: {useBonuses}");
-            }
-            else
-            {
-                Plugin.LogSource.LogError("Failed to parse use_bonuses");
-            }
+                if (entry != null)
+                {
+                    entry.Value = result;
+                }
 
-            if (bool.TryParse(config["use_effectiveness"]?.Value<string>(), out bool useEffectiveness))
-            {
-                Settings.UseEffectiveness.Value = useEffectiveness;
-                Plugin.LogDebug($"Use effectiveness: {useEffectiveness}");
+                callback?.Invoke(result);
             }
             else
             {
-                Plugin.LogSource.LogError("Failed to parse use_effectiveness");
-            }
-
-            if (bool.TryParse(config["cause_fatigue"]?.Value<string>(), out bool causeFatigue))
-            {
-                Settings.CauseFatigue.Value = causeFatigue;
-                Plugin.LogDebug($"Cause fatigue: {causeFatigue}");
-            }
-            else
-            {
-                Plugin.LogSource.LogError("Failed to parse cause_fatigue");
+                Plugin.LogSource.LogError($"Failed to parse {key}");
             }
         }
+
+        public delegate bool TryParseDelegate<T>(string value, out T result);
     }
 }

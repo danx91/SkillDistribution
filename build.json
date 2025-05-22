@@ -1,7 +1,7 @@
 {
 	"info":{
 		"name": "skilldistribution",
-		"version": "1.0.0",
+		"version": "1.1.0",
 		"spt": "3.10.5"
 	},
 	"dest": {

@@ -112,13 +112,12 @@ namespace SkillDistribution.Helpers
 
             foreach (SkillClass skill in skills)
             {
-                weights.Add(Math.Max(mode == ECompareMode.Min ? (ELITE_LEVEL - skill.Current) : skill.Current, 1000));
+                weights.Add(Math.Max(mode == ECompareMode.Min ? (ELITE_LEVEL - skill.Current) : skill.Current, 100));
             }
 
             float sum = weights.Sum();
             List<SkillClass> selectedSkills = new List<SkillClass>(count);
             Plugin.LogDebug($"Weighted random ditribution. To ditribute: {dbgXp}, per skill: {xp}, count {count} ({dbgCount}), total skills {skills.Count}, weights sum: {sum}");
-
 
             for (int i = 0; i < count; i++)
             {

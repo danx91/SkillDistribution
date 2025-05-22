@@ -47,7 +47,7 @@ namespace SkillDistribution.Patches
         [PatchPrefix]
         static bool Prefix(AbstractSkillClass __instance)
         {
-            if(!_fromMethod3)
+            if(_fromMethod3)
             {
                 Plugin.LogDebug($"Preventing events unsubscribe on {__instance.Id}");
             }
