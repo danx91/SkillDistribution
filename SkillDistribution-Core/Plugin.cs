@@ -7,7 +7,7 @@ using SkillDistribution.Patches;
 namespace SkillDistribution
 {
     [
-        BepInPlugin("ZGFueDkx.SkillDistribution", "SkillDistribution", "1.0.0"),
+        BepInPlugin("ZGFueDkx.SkillDistribution", "SkillDistribution", "1.1.0"),
         BepInDependency("com.SPT.core", "3.11"),
     ]
     public class Plugin : BaseUnityPlugin

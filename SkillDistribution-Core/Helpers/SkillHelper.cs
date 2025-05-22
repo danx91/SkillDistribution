@@ -55,6 +55,12 @@ namespace SkillDistribution.Helpers
 
             try
             {
+                float origXp = xp;
+
+                xp *= Settings.ExperienceMultiplier.Value;
+
+                Plugin.LogDebug($"Distribute XP - xp: {xp}, orig: {origXp}");
+
                 List<SkillClass> selectedSkills = SelectSkills(manager, ref xp);
                 if (selectedSkills == null || selectedSkills.Count == 0)
                 {
@@ -174,7 +180,7 @@ namespace SkillDistribution.Helpers
             skill.SetCurrent(skill.Current + xp, true);
             skill.LastCall = EFTDateTimeClass.UtcNow;
 
-            Plugin.LogDebug($"\tskill: {skill.Id}, xp: {origXp}, fatigue: {postFatigue}, bonus: {postBonus}, lvlCorr: {xp}; pre: {xpPre}, final: {skill.Current}");
+            Plugin.LogDebug($"\tskill: {skill.Id}, xp: {origXp}, effectiveness: {postFatigue}, bonus: {postBonus}, lvlCorr: {xp}; pre: {xpPre}, final: {skill.Current}");
         }
     }
 }

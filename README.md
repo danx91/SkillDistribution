@@ -25,6 +25,8 @@ You can access config while in-game by pressing `F12` key and then selecting `Sk
 * **Use bonuses** - Whether or not distributed XP used target skill bonuses
 * **Use effectiveness** - Whether or not distributed XP use and cause traget skill fatigue
 * **Cause fatigue** - Whether or not distributed XP cause target skill fatigue when use_effectiveness is false. This option has no effect if use effectiveness is set to true
+* **Experience multiplier** - Experience multiplier of distributed XP. Use it to increase or decrease XP that is distributed
+* **Experience multiplier (gym)** - Experience multiplier of distributed XP from workout
 * **Reset to server values** - Pull settings from server and apply them
 
 

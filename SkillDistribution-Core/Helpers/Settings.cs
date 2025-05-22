@@ -10,13 +10,19 @@ namespace SkillDistribution.Helpers
         public static ConfigEntry<SkillHelper.EDistributionMode> DistributionMode;
         public static ConfigEntry<int> SkillsCount;
         public static ConfigEntry<bool> AllowGym;
+        public static ConfigEntry<bool> UseBonuses;
         public static ConfigEntry<bool> UseEffectiveness;
         public static ConfigEntry<bool> CauseFatigue;
-        public static ConfigEntry<bool> UseBonuses;
+        public static ConfigEntry<float> ExperienceMultiplier;
+        public static ConfigEntry<float> GymExperienceMultiplier;
         public static ConfigEntry<bool> ShowDebug;
+
+        public static ConfigEntryBase[] ConfigEntries;
 
         public static void Init(ConfigFile config)
         {
+            int order = 100;
+
             DistributionMode = config.Bind(
                 "1. General config",
                 "Experience distribution mode",
@@ -29,7 +35,7 @@ namespace SkillDistribution.Helpers
                     "WeightedRandomMax - Distribute XP to random skill(s), skill with higher level have higher chance\n" +
                     "Min - Distribute XP to skill(s) with lowest level\n" +
                     "Max - Distribute XP to skill(s) with highest level",
-                    100
+                    order--
                 )
             );
 
@@ -37,38 +43,50 @@ namespace SkillDistribution.Helpers
                 "1. General config",
                 "Skills count",
                 3,
-                MakeDescription("Number of skills to distribute experience to", 99)
+                MakeDescription("Number of skills to distribute experience to", order--)
             );
 
             AllowGym = config.Bind(
                 "1. General config",
                 "Allow gym",
                 true,
-                MakeDescription("Whether or not XP from gym should be also distributed if strength/endurance is maxed", 98)
+                MakeDescription("Whether or not XP from gym should be also distributed if strength/endurance is maxed", order--)
             );
 
             UseBonuses = config.Bind(
                "1. General config",
                "Use bonuses",
                true,
-               MakeDescription("Whether or not distributed XP used target skill bonuses", 97)
+               MakeDescription("Whether or not distributed XP used target skill bonuses", order--)
             );
 
             UseEffectiveness = config.Bind(
                "1. General config",
                "Use effectiveness",
                true,
-               MakeDescription("Whether or not distributed XP use and cause traget skill fatigue", 96)
+               MakeDescription("Whether or not distributed XP use and cause target skill fatigue", order--)
             );
 
             CauseFatigue = config.Bind(
                "1. General config",
                "Cause fatigue",
                true,
-               MakeDescription("Whether or not distributed XP cause traget skill fatigue when use_effectiveness is false. This option has no effect if use effectiveness is set to true", 95)
+               MakeDescription("Whether or not distributed XP cause target skill fatigue when use_effectiveness is false. This option has no effect if use effectiveness is set to true", order--)
             );
 
-            //Should 
+            ExperienceMultiplier = config.Bind(
+                "1. General config",
+                "Experience multiplier",
+                1.0f,
+                MakeDescription("Experience multiplier of distributed XP. Use it to increase or decrease XP that is distributed", order--)
+            );
+
+            GymExperienceMultiplier = config.Bind(
+                "1. General config",
+                "Experience multiplier (gym)",
+                1.0f,
+                MakeDescription("Experience multiplier of distributed XP from workout", order--)
+            );
 
             config.BindButton("2. Reset", "Reset to server values", "Reset", "Pull settings from server and apply them", 50, () =>
             {
@@ -88,6 +106,18 @@ namespace SkillDistribution.Helpers
                 false,
                 "Log debug info to Player.log"
             );
+
+            ConfigEntries = new ConfigEntryBase[]
+            {
+                DistributionMode,
+                SkillsCount,
+                AllowGym,
+                UseBonuses,
+                UseEffectiveness,
+                CauseFatigue,
+                ExperienceMultiplier,
+                GymExperienceMultiplier,
+            };
 
             ServerConfig.Load();
         }
@@ -122,7 +152,7 @@ namespace SkillDistribution.Helpers
             );
         }
 
-        public static void SetReadOnly<T>(this ConfigEntry<T> entry, bool readOnly)
+        public static void SetReadOnly(this ConfigEntryBase entry, bool readOnly)
         {
             ConfigurationManagerAttributes attributes = (ConfigurationManagerAttributes)
                 entry.Description.Tags.FirstOrDefault(t => t.GetType() == typeof(ConfigurationManagerAttributes));
