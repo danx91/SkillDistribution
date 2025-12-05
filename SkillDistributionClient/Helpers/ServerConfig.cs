@@ -19,7 +19,7 @@ namespace SkillDistribution.Helpers
             {
                 AllowOverride = allowOverride;
 
-                foreach (ConfigEntryBase entry in Settings.ConfigEntries)
+                foreach (ConfigEntryBase entry in Settings.ConfigEntries!)
                 {
                     entry.SetReadOnly(!allowOverride);
                 }
@@ -32,31 +32,31 @@ namespace SkillDistribution.Helpers
 
             if (Enum.TryParse(config["distribution_mode"]?.Value<string>(), true, out SkillHelper.EDistributionMode mode))
             {
-                Settings.DistributionMode.Value = mode;
+                Settings.DistributionMode!.Value = mode;
                 Plugin.LogDebug($"Distribution mode: {mode}");
             }
             else
             {
-                Plugin.LogSource.LogError("Failed to parse distribution_mode");
+                Plugin.LogSource!.LogError("Failed to parse distribution_mode");
             }
 
-            ParseAndApply(config, "skills_count", int.TryParse, Settings.SkillsCount);
-            ParseAndApply(config, "allow_gym", bool.TryParse, Settings.AllowGym);
-            ParseAndApply(config, "use_effectiveness", bool.TryParse, Settings.UseEffectiveness);
-            ParseAndApply(config, "cause_fatigue", bool.TryParse, Settings.CauseFatigue);
-            ParseAndApply(config, "use_bonuses", bool.TryParse, Settings.UseBonuses);
-            ParseAndApply(config, "xp_multiplier", float.TryParse, Settings.ExperienceMultiplier);
-            ParseAndApply(config, "gym_multiplier", float.TryParse, Settings.GymExperienceMultiplier);
+            ParseAndApply(config, "skills_count", int.TryParse, Settings.SkillsCount!);
+            ParseAndApply(config, "allow_gym", bool.TryParse, Settings.AllowGym!);
+            ParseAndApply(config, "use_effectiveness", bool.TryParse, Settings.UseEffectiveness!);
+            ParseAndApply(config, "cause_fatigue", bool.TryParse, Settings.CauseFatigue!);
+            ParseAndApply(config, "use_bonuses", bool.TryParse, Settings.UseBonuses!);
+            ParseAndApply(config, "xp_multiplier", float.TryParse, Settings.ExperienceMultiplier!);
+            ParseAndApply(config, "gym_multiplier", float.TryParse, Settings.GymExperienceMultiplier!);
         }
 
         public static void ParseAndApply<T>(
             JObject config,
             string key,
             TryParseDelegate<T> tryParse,
-            ConfigEntry<T> entry = null,
-            Action<T> callback = null)
+            ConfigEntry<T>? entry = null,
+            Action<T>? callback = null)
         {
-            string rawValue = config[key]?.Value<string>();
+            string? rawValue = config[key]?.Value<string>();
             if (rawValue != null && tryParse(rawValue, out T result))
             {
                 Plugin.LogDebug($"{entry?.Definition.Key ?? key}: {result}");
@@ -70,7 +70,7 @@ namespace SkillDistribution.Helpers
             }
             else
             {
-                Plugin.LogSource.LogError($"Failed to parse {key}");
+                Plugin.LogSource!.LogError($"Failed to parse {key}");
             }
         }
 

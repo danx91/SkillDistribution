@@ -7,17 +7,17 @@ namespace SkillDistribution.Helpers
 {
     internal static class Settings
     {
-        public static ConfigEntry<SkillHelper.EDistributionMode> DistributionMode;
-        public static ConfigEntry<int> SkillsCount;
-        public static ConfigEntry<bool> AllowGym;
-        public static ConfigEntry<bool> UseBonuses;
-        public static ConfigEntry<bool> UseEffectiveness;
-        public static ConfigEntry<bool> CauseFatigue;
-        public static ConfigEntry<float> ExperienceMultiplier;
-        public static ConfigEntry<float> GymExperienceMultiplier;
-        public static ConfigEntry<bool> ShowDebug;
+        public static ConfigEntry<SkillHelper.EDistributionMode>? DistributionMode;
+        public static ConfigEntry<int>? SkillsCount;
+        public static ConfigEntry<bool>? AllowGym;
+        public static ConfigEntry<bool>? UseBonuses;
+        public static ConfigEntry<bool>? UseEffectiveness;
+        public static ConfigEntry<bool>? CauseFatigue;
+        public static ConfigEntry<float>? ExperienceMultiplier;
+        public static ConfigEntry<float>? GymExperienceMultiplier;
+        public static ConfigEntry<bool>? ShowDebug;
 
-        public static ConfigEntryBase[] ConfigEntries;
+        public static ConfigEntryBase[]? ConfigEntries;
 
         public static void Init(ConfigFile config)
         {
@@ -107,8 +107,8 @@ namespace SkillDistribution.Helpers
                 "Log debug info to Player.log"
             );
 
-            ConfigEntries = new ConfigEntryBase[]
-            {
+            ConfigEntries =
+            [
                 DistributionMode,
                 SkillsCount,
                 AllowGym,
@@ -117,7 +117,7 @@ namespace SkillDistribution.Helpers
                 CauseFatigue,
                 ExperienceMultiplier,
                 GymExperienceMultiplier,
-            };
+            ];
 
             ServerConfig.Load();
         }

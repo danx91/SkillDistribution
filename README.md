@@ -32,6 +32,11 @@ You can access config while in-game by pressing `F12` key and then selecting `Sk
 
 ## License
 Copyright © 2025 danx91 (aka ZGFueDkx)
-This software is distributed under GNU GPLv3 license. Full license text can be found [here](LICENSE).
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not, see https://www.gnu.org/licenses/.
 
 If you believe that this software infringes yours or someone else's copyrights, please contact me via Discord to resolve this issue: **danx91**.

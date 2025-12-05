@@ -1,6 +1,5 @@
 ﻿using Comfort.Common;
 using EFT;
-using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -39,9 +38,9 @@ namespace SkillDistribution.Helpers
         public static readonly float ELITE_LEVEL = 5100f;
 
         private static bool _inDistribute = false;
-        private static readonly AccessTools.FieldRef<SkillClass, float> _pointsEarnedRef = AccessTools.FieldRefAccess<SkillClass, float>("float_2");
-        private static readonly AccessTools.FieldRef<SkillClass, float> _effectivenessRef = AccessTools.FieldRefAccess<SkillClass, float>("float_3");
-        private static readonly AccessTools.FieldRef<SkillClass, float> _fatigueResetRef = AccessTools.FieldRefAccess<SkillClass, float>("float_4");
+        //private static readonly AccessTools.FieldRef<SkillClass, float> _pointsEarnedRef = AccessTools.FieldRefAccess<SkillClass, float>("Float_2");
+        //private static readonly AccessTools.FieldRef<SkillClass, float> _effectivenessRef = AccessTools.FieldRefAccess<SkillClass, float>("Float_3");
+        //private static readonly AccessTools.FieldRef<SkillClass, float> _fatigueResetRef = AccessTools.FieldRefAccess<SkillClass, float>("float_4");
 
         public static void DistributeSkillExperience(SkillManager manager, float xp)
         {
@@ -57,11 +56,11 @@ namespace SkillDistribution.Helpers
             {
                 float origXp = xp;
 
-                xp *= Settings.ExperienceMultiplier.Value;
+                xp *= Settings.ExperienceMultiplier!.Value;
 
                 Plugin.LogDebug($"Distribute XP - xp: {xp}, orig: {origXp}");
 
-                List<SkillClass> selectedSkills = SelectSkills(manager, ref xp);
+                List<SkillClass>? selectedSkills = SelectSkills(manager, ref xp);
                 if (selectedSkills == null || selectedSkills.Count == 0)
                 {
                     Plugin.LogDebug("Failed to distribute skill XP - no skills selected! Abort...");
@@ -75,8 +74,8 @@ namespace SkillDistribution.Helpers
             }
             catch (Exception e)
             {
-                Plugin.LogSource.LogError($"Error while distributing XP");
-                Plugin.LogSource.LogError(e.ToString());
+                Plugin.LogSource!.LogError($"Error while distributing XP");
+                Plugin.LogSource!.LogError(e.ToString());
             }
             finally
             {
@@ -84,7 +83,7 @@ namespace SkillDistribution.Helpers
             }
         }
 
-        public static List<SkillClass> SelectSkills(SkillManager manager, ref float xp)
+        public static List<SkillClass>? SelectSkills(SkillManager manager, ref float xp)
         {
             if (!GetApplicableSkills(manager, out List<SkillClass> skills))
             {
@@ -92,14 +91,14 @@ namespace SkillDistribution.Helpers
                 return null;
             }
 
-            int skillsCount = Settings.SkillsCount.Value;
+            int skillsCount = Settings.SkillsCount!.Value;
 
             if (skillsCount < 1)
             {
                 skillsCount = 1;
             }
 
-            switch (Settings.DistributionMode.Value)
+            switch (Settings.DistributionMode!.Value)
             {
                 case EDistributionMode.Equal:
                     return EqualDistribution(skills, ref xp);
@@ -116,14 +115,14 @@ namespace SkillDistribution.Helpers
                 case EDistributionMode.Max:
                     return EdgeDistribution(skills, ref xp, skillsCount, ECompareMode.Max);
                 default:
-                    Plugin.LogSource.LogError("Unknown distribution mode. Abort...");
+                    Plugin.LogSource?.LogError("Unknown distribution mode. Abort...");
                     return null;
             }
         }
 
         private static bool GetApplicableSkills(SkillManager manager, out List<SkillClass> skills)
         {
-            skills = new List<SkillClass>();
+            skills = [];
 
             foreach (SkillClass skill in manager.DisplayList)
             {
@@ -143,29 +142,35 @@ namespace SkillDistribution.Helpers
 
             skill.SkillManager.SkillProgress.Complete(skill, xp);
 
-            if(Settings.UseEffectiveness.Value)
+            if(Settings.UseEffectiveness!.Value)
             {
                 xp = skill.UseEffectiveness(xp);
-            } else if(Settings.CauseFatigue.Value)
+            } else if(Settings.CauseFatigue!.Value)
             {
-                if (Time.time > _fatigueResetRef(skill))
+                //if (Time.time > _fatigueResetRef(skill))
+                if (Time.time > skill.Float_4)
                 {
-                    _effectivenessRef(skill) = 1f;
-                    _pointsEarnedRef(skill) = Mathf.Min(skill.PointsEarned, (float) Singleton<BackendConfigSettingsClass>.Instance.SkillFreshPoints);
+                    //_effectivenessRef(skill) = 1f;
+                    //_pointsEarnedRef(skill) = Mathf.Min(skill.PointsEarned, (float) Singleton<BackendConfigSettingsClass>.Instance.SkillFreshPoints);
+                    skill.Float_3 = 1f;
+                    skill.Float_2 = Mathf.Min(skill.PointsEarned, (float)Singleton<BackendConfigSettingsClass>.Instance.SkillFreshPoints);
                 }
 
-                _pointsEarnedRef(skill) += xp;
-                _effectivenessRef(skill) = skill.SkillManager.GetEffectiveness((int) (skill.PointsEarned));
+                //_pointsEarnedRef(skill) += xp;
+                //_effectivenessRef(skill) = skill.SkillManager.GetEffectiveness((int) (skill.PointsEarned));
+                skill.Float_2 += xp;
+                skill.Float_3 = skill.SkillManager.GetEffectiveness((int) (skill.PointsEarned));
 
                 if(skill.Effectiveness <= 1.0f)
                 {
-                    _fatigueResetRef(skill) = Time.time + (float) Singleton<BackendConfigSettingsClass>.Instance.SkillFatigueReset;
+                    //_fatigueResetRef(skill) = Time.time + (float) Singleton<BackendConfigSettingsClass>.Instance.SkillFatigueReset;
+                    skill.Float_4 = Time.time + (float) Singleton<BackendConfigSettingsClass>.Instance.SkillFatigueReset;
                 }
             }
 
             float postFatigue = xp;
 
-            if (Settings.UseBonuses.Value)
+            if (Settings.UseBonuses!.Value)
             {
                 xp = (float) skill.SkillManager.BonusController.Calculate(skill, (double) xp);
             }

@@ -1,7 +1,7 @@
-﻿using static SkillDistribution.Helpers.SkillHelper;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
+using static SkillDistribution.Helpers.SkillHelper;
 
 namespace SkillDistribution.Helpers
 {
@@ -27,7 +27,7 @@ namespace SkillDistribution.Helpers
             return true;
         }
 
-        public static List<SkillClass> EqualDistribution(List<SkillClass> skills, ref float xp)
+        public static List<SkillClass>? EqualDistribution(List<SkillClass> skills, ref float xp)
         {
             float xpPerSkill = xp / skills.Count;
             Plugin.LogDebug($"Equal ditribution. To ditribute: {xp}, per skill: {xpPerSkill}, total skills {skills.Count}");
@@ -54,13 +54,13 @@ namespace SkillDistribution.Helpers
             }
 
             Plugin.LogDebug($"Round robin ditribution. To ditribute: {xp}, total skills {skills.Count}, index: {_roundRobinIndex}");
-            return new List<SkillClass>
-            {
+            return
+            [
                 skills[_roundRobinIndex++]
-            };
+            ];
         }
 
-        public static List<SkillClass> RandomDistribution(List<SkillClass> skills, ref float xp, int count)
+        public static List<SkillClass>? RandomDistribution(List<SkillClass> skills, ref float xp, int count)
         {
             int dbgCount = count;
             float dbgXp = xp;
@@ -77,8 +77,8 @@ namespace SkillDistribution.Helpers
 
             Plugin.LogDebug($"Random ditribution. To ditribute: {dbgXp}, per skill: {xp}, count {count} ({dbgCount}), total skills {skills.Count}");
 
-            List<int> indexes = Enumerable.Range(0, skills.Count).ToList();
-            List<SkillClass> selectedSkills = new List<SkillClass>(count);
+            List<int> indexes = [.. Enumerable.Range(0, skills.Count)];
+            List<SkillClass> selectedSkills = new(count);
 
             for (int i = 0; i < count; i++)
             {
@@ -92,7 +92,7 @@ namespace SkillDistribution.Helpers
             return selectedSkills;
         }
 
-        public static List<SkillClass> WeightedRandomDistribution(List<SkillClass> skills, ref float xp, int count, ECompareMode mode)
+        public static List<SkillClass>? WeightedRandomDistribution(List<SkillClass> skills, ref float xp, int count, ECompareMode mode)
         {
             int dbgCount = count;
             float dbgXp = xp;
@@ -107,8 +107,8 @@ namespace SkillDistribution.Helpers
                 count = skills.Count;
             }
 
-            List<int> indexes = Enumerable.Range(0, skills.Count).ToList();
-            List<float> weights = new List<float>();
+            List<int> indexes = [.. Enumerable.Range(0, skills.Count)];
+            List<float> weights = [];
 
             foreach (SkillClass skill in skills)
             {
@@ -116,7 +116,7 @@ namespace SkillDistribution.Helpers
             }
 
             float sum = weights.Sum();
-            List<SkillClass> selectedSkills = new List<SkillClass>(count);
+            List<SkillClass> selectedSkills = new(count);
             Plugin.LogDebug($"Weighted random ditribution. To ditribute: {dbgXp}, per skill: {xp}, count {count} ({dbgCount}), total skills {skills.Count}, weights sum: {sum}");
 
             for (int i = 0; i < count; i++)
@@ -143,7 +143,7 @@ namespace SkillDistribution.Helpers
             return selectedSkills;
         }
 
-        public static List<SkillClass> EdgeDistribution(List<SkillClass> skills, ref float xp, int count, ECompareMode mode)
+        public static List<SkillClass>? EdgeDistribution(List<SkillClass> skills, ref float xp, int count, ECompareMode mode)
         {
             int dbgCount = count;
             float dbgXp = xp;
@@ -160,8 +160,8 @@ namespace SkillDistribution.Helpers
 
             Plugin.LogDebug($"Min/Max ditribution. To ditribute: {dbgXp}, per skill: {xp}, count {count} ({dbgCount}), total skills {skills.Count}");
 
-            List<SkillClass> sortedSkills = skills.OrderBy(s => mode == ECompareMode.Min ? s.Current : -s.Current).ToList();
-            List<SkillClass> selectedSkills = new List<SkillClass>(count);
+            List<SkillClass> sortedSkills = [.. skills.OrderBy(s => mode == ECompareMode.Min ? s.Current : -s.Current)];
+            List<SkillClass> selectedSkills = new(count);
 
             for (int i = 0; i < count; i++)
             {

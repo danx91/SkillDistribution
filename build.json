@@ -1,18 +1,17 @@
 {
 	"info":{
 		"name": "skilldistribution",
-		"version": "1.1.0",
-		"spt": "3.11"
+		"version": "1.2.0",
+		"spt": "4.0"
 	},
 	"dest": {
 		"client": "BepInEx/plugins/",
-		"server": "user/mods/zgfuedkx-skilldistribution/"
+		"server": "SPT/user/mods/SkillDistribution/"
 	},
 	"files": {
-		"SkillDistribution-Server/package.json": "server",
-		"SkillDistribution-Server/src": "server",
-		"SkillDistribution-Server/config": "server",
-		"SkillDistribution-Core/bin/Release/SkillDistribution.dll": "client"
+		"SkillDistributionServer/bin/Release/net9.0/SkillDistribution-Server.dll": "server",
+		"SkillDistributionServer/config": "server",
+		"SkillDistributionClient/bin/Release/netstandard2.1/SkillDistribution-Client.dll": "client"
 	},
 	"ignore": [
 		"**/*.md"

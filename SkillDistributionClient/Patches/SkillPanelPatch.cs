@@ -1,5 +1,6 @@
 ﻿using EFT.UI;
 using HarmonyLib;
+using SkillDistribution.Helpers;
 using SPT.Reflection.Patching;
 using System.Reflection;
 using UnityEngine;
@@ -16,8 +17,8 @@ namespace SkillDistribution.Patches
         [PatchPostfix]
         static void Postfix(SkillClass ___skillClass, GameObject ____effectivenessDown, GameObject ____effectivenessUp)
         {
-            ____effectivenessDown.SetActive(___skillClass.Effectiveness < 1f && GClass2107.InRaid);
-            ____effectivenessUp.SetActive(___skillClass.Effectiveness > 1f && GClass2107.InRaid);
+            ____effectivenessDown.SetActive(___skillClass.Effectiveness < 1f && Utils.IsInRaid());
+            ____effectivenessUp.SetActive(___skillClass.Effectiveness > 1f && Utils.IsInRaid());
         }
     }
 }

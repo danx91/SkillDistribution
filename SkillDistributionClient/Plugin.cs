@@ -7,13 +7,13 @@ using SkillDistribution.Patches;
 namespace SkillDistribution
 {
     [
-        BepInPlugin("ZGFueDkx.SkillDistribution", "SkillDistribution", "1.1.0"),
-        BepInDependency("com.SPT.core", "3.11"),
+        BepInPlugin("ZGFueDkx.SkillDistribution", "SkillDistribution", "1.2.0"),
+        BepInDependency("com.SPT.core", "4.0.0"),
     ]
     public class Plugin : BaseUnityPlugin
     {
-        public static ManualLogSource LogSource;
-        public static SkillManager SkillManager;
+        public static ManualLogSource? LogSource;
+        public static SkillManager? SkillManager;
 
         public void Awake()
         {
@@ -33,9 +33,9 @@ namespace SkillDistribution
 
         public static void LogDebug(string msg)
         {
-            if (Settings.ShowDebug.Value)
+            if (Settings.ShowDebug!.Value)
             {
-                LogSource.LogDebug(msg);
+                LogSource!.LogDebug(msg);
             }
         }
     }

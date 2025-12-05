@@ -11,7 +11,7 @@ namespace SkillDistribution.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(SkillTooltip), nameof(SkillTooltip.Show), new[] { typeof(SkillClass) });
+            return AccessTools.Method(typeof(SkillTooltip), nameof(SkillTooltip.Show), [typeof(SkillClass)]);
         }
 
         [PatchTranspiler]

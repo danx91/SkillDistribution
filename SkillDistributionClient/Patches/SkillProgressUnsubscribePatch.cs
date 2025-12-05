@@ -1,7 +1,6 @@
-﻿using System.Reflection;
-
-using HarmonyLib;
+﻿using HarmonyLib;
 using SPT.Reflection.Patching;
+using System.Reflection;
 
 namespace SkillDistribution.Patches
 {
@@ -22,14 +21,14 @@ namespace SkillDistribution.Patches
         }
 
         [PatchPrefix]
-        static bool Prefix()
+        static bool Prefix(SkillClass __instance)
         {
             AbstractSkillUnsubscribePatch._fromMethod3 = true;
             return true;
         }
 
         [PatchPostfix]
-        static void Postfix()
+        static void Postfix(SkillClass __instance)
         {
             AbstractSkillUnsubscribePatch._fromMethod3 = false;
         }

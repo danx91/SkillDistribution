@@ -1,5 +1,4 @@
 ﻿using Comfort.Common;
-using Diz.Skinning;
 using EFT;
 using EFT.Communications;
 using EFT.Hideout;
@@ -22,35 +21,35 @@ namespace SkillDistribution.Patches
         }
 
         [PatchPrefix]
-        static bool Prefix(WorkoutBehaviour __instance, QteHandleData ___qteHandleData_0, HideoutPlayerOwner ___hideoutPlayerOwner_0,
-            HealthControllerClass ___healthControllerClass)
+        static bool Prefix(WorkoutBehaviour __instance)
         {
-            if (!Settings.AllowGym.Value)
+            if (!Settings.AllowGym!.Value)
             {
                 return true;
             }
 
-            SkillManager manager = ___hideoutPlayerOwner_0.HideoutPlayer.Skills;
-            SkillClass[] skills = GetWorkoutSkills(__instance, ___qteHandleData_0, manager,
-                out float xpMult, out QteEffect.SkillExperienceMultiplierData[] multipliers);
+            SkillManager manager = __instance.HideoutPlayerOwner_0.HideoutPlayer.Skills;
+            SkillClass[]? skills = GetWorkoutSkills(__instance, __instance.QteHandleData_0, manager,
+                out float xpMult, out QteEffect.SkillExperienceMultiplierData[]? multipliers);
 
             if(skills == null)
             {
-                Plugin.LogDebug("Workout skills is null. Abort...");
+                Plugin.LogDebug("Workout skills are null. Abort...");
                 return false;
             }
 
-            float effectiveness = (___healthControllerClass.HasSevereMusclePainEffect() ? ___healthControllerClass.GetSevereMusclePainSettings().GymEffectivity :
-                (___healthControllerClass.HasMildMusclePainEffect() ? ___healthControllerClass.GetMildMusclePainSettings().GymEffectivity : 0f));
+            float effectiveness = (__instance.HealthControllerClass.HasSevereMusclePainEffect() ?
+                __instance.HealthControllerClass.GetSevereMusclePainSettings().GymEffectivity : (__instance.HealthControllerClass.HasMildMusclePainEffect() ?
+                __instance.HealthControllerClass.GetMildMusclePainSettings().GymEffectivity : 0f));
 
             Plugin.LogDebug($"Workout skills: {skills.Length}, xpMult: {xpMult}, effectiveness: {effectiveness}");
 
-            xpMult *= Settings.GymExperienceMultiplier.Value;
+            xpMult *= Settings.GymExperienceMultiplier!.Value;
 
             foreach (SkillClass skill in skills)
             {
                 float skillMultiplier = 0f;
-                foreach (QteEffect.SkillExperienceMultiplierData multiplierData in multipliers)
+                foreach (QteEffect.SkillExperienceMultiplierData multiplierData in multipliers!)
                 {
                     if (skill.Level >= multiplierData.level)
                     {
@@ -67,7 +66,7 @@ namespace SkillDistribution.Patches
 
                 if (skills.Length <= 3)
                 {
-                    NotificationManagerClass.DisplayNotification(new GClass2314(
+                    NotificationManagerClass.DisplayNotification(new GClass2551(
                         string.Format(
                             "Skill '{0}' increased by {1}".Localized(null),
                             skill.Id.ToString().Localized(null),
@@ -81,7 +80,7 @@ namespace SkillDistribution.Patches
 
             if (skills.Length > 3)
             {
-                NotificationManagerClass.DisplayNotification(new GClass2314(
+                NotificationManagerClass.DisplayNotification(new GClass2551(
                     $"Total of {skills.Length} skills increased during workout",
                     ENotificationDurationType.Default,
                     ENotificationIconType.Default,
@@ -91,11 +90,11 @@ namespace SkillDistribution.Patches
             return false;
         }
 
-        private static SkillClass[] GetWorkoutSkills(WorkoutBehaviour workoutBehaviour, QteHandleData qteHandleData, SkillManager manager,
-            out float xpMult, out QteEffect.SkillExperienceMultiplierData[] multipliers)
+        private static SkillClass[]? GetWorkoutSkills(WorkoutBehaviour workoutBehaviour, QteHandleData qteHandleData, SkillManager manager,
+            out float xpMult, out QteEffect.SkillExperienceMultiplierData[]? multipliers)
         {
             QteEffect[] qteAllEffects = qteHandleData.Results[QteData.EQteEffectType.SingleSuccessEffect].Effects;
-            QteEffect[] qteEffects = qteAllEffects.Where(new Func<QteEffect, bool>(workoutBehaviour.method_21)).ToArray();
+            QteEffect[] qteEffects = [.. qteAllEffects.Where(new Func<QteEffect, bool>(workoutBehaviour.method_21))];
 
             if (qteEffects.Length > 0)
             {
@@ -103,14 +102,14 @@ namespace SkillDistribution.Patches
 
                 xpMult = 1.0f;
                 multipliers = qteEffect.SkillExpMultiplierData;
-                return new SkillClass[]
-                {
+                return
+                [
                     manager.GetSkill(qteEffect.Skill)
-                };
+                ];
             }
 
             xpMult = 1.0f;
-            List<SkillClass> skills = SkillHelper.SelectSkills(manager, ref xpMult);
+            List<SkillClass>? skills = SkillHelper.SelectSkills(manager, ref xpMult);
             if (skills == null || qteAllEffects.Length == 0)
             {
                 Plugin.LogDebug("Gym distribution failed!");
@@ -121,7 +120,7 @@ namespace SkillDistribution.Patches
             }
 
             multipliers = qteAllEffects[Singleton<HideoutClass>.Instance.QteRandomNext(0, qteAllEffects.Length)].SkillExpMultiplierData;
-            return skills.ToArray();
+            return [.. skills];
         }
     }
 }

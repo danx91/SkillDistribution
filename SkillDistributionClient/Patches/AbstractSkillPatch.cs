@@ -22,7 +22,7 @@ namespace SkillDistribution.Patches
         [PatchPostfix]
         static void Postfix(AbstractSkillClass __instance, float val, float __state)
         {
-            if (!(__instance is SkillClass skill) || Plugin.SkillManager == null || Plugin.SkillManager != skill.SkillManager)
+            if (__instance is not SkillClass skill || Plugin.SkillManager is null || Plugin.SkillManager != skill.SkillManager)
             {
                 return;
             }
