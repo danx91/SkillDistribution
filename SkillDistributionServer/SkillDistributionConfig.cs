@@ -26,9 +26,9 @@ namespace SkillDistribution
         public bool? CauseFatigue { get; set; }
 
         [JsonPropertyName("xp_multiplier")]
-        public int? XpMultiplier { get; set; }
+        public float? XpMultiplier { get; set; }
 
         [JsonPropertyName("gym_multiplier")]
-        public int? GymMultiplier { get; set; }
+        public float? GymMultiplier { get; set; }
     }
 }
