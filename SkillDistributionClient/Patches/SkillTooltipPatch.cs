@@ -31,6 +31,7 @@ namespace SkillDistribution.Patches
                 {
                     codes[i] = new CodeInstruction(OpCodes.Ldc_I4_0)
                         .WithLabels(codes[i].labels);
+
                     codes.RemoveAt(i + 1);
                     codes.RemoveAt(i + 1);
 

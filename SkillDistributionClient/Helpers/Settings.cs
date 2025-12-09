@@ -1,7 +1,8 @@
 ﻿using BepInEx.Configuration;
-using System;
-using System.Linq;
-using UnityEngine;
+using EFT;
+using SPT.Reflection.Utils;
+using System.Collections.Generic;
+using ZGFueDkx.ZGCLib.Config;
 
 namespace SkillDistribution.Helpers
 {
@@ -17,78 +18,74 @@ namespace SkillDistribution.Helpers
         public static ConfigEntry<float>? GymExperienceMultiplier;
         public static ConfigEntry<bool>? ShowDebug;
 
-        public static ConfigEntryBase[]? ConfigEntries;
+        public static List<ConfigEntryBase> ConfigEntries = [];
 
+        public static ConfigEntry<bool>? ApplyMultipliers;
+        public static Dictionary<ESkillId, ConfigEntry<float>> SkillMults = [];
+
+        private static ConfigCategory? _mults;
         public static void Init(ConfigFile config)
         {
-            int order = 100;
+            ConfigCategory general = config.MakeCategory(1, "General config");
+            _mults = config.MakeCategory(2, "Skill Multipliers");
+            ConfigCategory debug = config.MakeCategory(9, "Debug");
 
-            DistributionMode = config.Bind(
-                "1. General config",
+            DistributionMode = general.BindConfig(
                 "Experience distribution mode",
                 SkillHelper.EDistributionMode.WeightedRandomMax,
-                MakeDescription("Determines how skill experience is distributed\n" +
-                    "Equal - All experience is equally distributed to all skills (if there is not enough XP, random will be used instead)\n" +
-                    "RoundRobin - Distribute XP to one skill after another in cyclic manner\n" +
-                    "Random - Distribute XP to random skill(s)\n" +
-                    "WeightedRandomMin - Distribute XP to random skill(s), skill with lower level have higher chance\n" +
-                    "WeightedRandomMax - Distribute XP to random skill(s), skill with higher level have higher chance\n" +
-                    "Min - Distribute XP to skill(s) with lowest level\n" +
-                    "Max - Distribute XP to skill(s) with highest level",
-                    order--
-                )
+                "Determines how skill experience is distributed\n" +
+                "Equal - All experience is equally distributed to all skills (if there is not enough XP, random will be used instead)\n" +
+                "RoundRobin - Distribute XP to one skill after another in cyclic manner\n" +
+                "Random - Distribute XP to random skill(s)\n" +
+                "WeightedRandomMin - Distribute XP to random skill(s), skill with lower level have higher chance\n" +
+                "WeightedRandomMax - Distribute XP to random skill(s), skill with higher level have higher chance\n" +
+                "Min - Distribute XP to skill(s) with lowest level\n" +
+                "Max - Distribute XP to skill(s) with highest level"
             );
 
-            SkillsCount = config.Bind(
-                "1. General config",
+            SkillsCount = general.BindConfig(
                 "Skills count",
                 3,
-                MakeDescription("Number of skills to distribute experience to", order--)
+                "Number of skills to distribute experience to"
             );
 
-            AllowGym = config.Bind(
-                "1. General config",
+            AllowGym = general.BindConfig(
                 "Allow gym",
                 true,
-                MakeDescription("Whether or not XP from gym should be also distributed if strength/endurance is maxed", order--)
+                "Whether or not XP from gym should be also distributed if strength/endurance is maxed"
             );
 
-            UseBonuses = config.Bind(
-               "1. General config",
+            UseBonuses = general.BindConfig(
                "Use bonuses",
                true,
-               MakeDescription("Whether or not distributed XP used target skill bonuses", order--)
+               "Whether or not distributed XP used target skill bonuses"
             );
 
-            UseEffectiveness = config.Bind(
-               "1. General config",
+            UseEffectiveness = general.BindConfig(
                "Use effectiveness",
                true,
-               MakeDescription("Whether or not distributed XP use and cause target skill fatigue", order--)
+               "Whether or not distributed XP use and cause target skill fatigue"
             );
 
-            CauseFatigue = config.Bind(
-               "1. General config",
+            CauseFatigue = general.BindConfig(
                "Cause fatigue",
                true,
-               MakeDescription("Whether or not distributed XP cause target skill fatigue when use_effectiveness is false. This option has no effect if use effectiveness is set to true", order--)
+               "Whether or not distributed XP cause target skill fatigue when use_effectiveness is false. This option has no effect if use effectiveness is set to true"
             );
 
-            ExperienceMultiplier = config.Bind(
-                "1. General config",
+            ExperienceMultiplier = general.BindConfig(
                 "Experience multiplier",
                 1.0f,
-                MakeDescription("Experience multiplier of distributed XP. Use it to increase or decrease XP that is distributed", order--)
+                "Experience multiplier of distributed XP. Use it to increase or decrease XP that is distributed. Cumulates with specific skill multiplier!"
             );
 
-            GymExperienceMultiplier = config.Bind(
-                "1. General config",
+            GymExperienceMultiplier = general.BindConfig(
                 "Experience multiplier (gym)",
                 1.0f,
-                MakeDescription("Experience multiplier of distributed XP from workout", order--)
+                "Experience multiplier of distributed XP from workout"
             );
 
-            config.BindButton("2. Reset", "Reset to server values", "Reset", "Pull settings from server and apply them", 50, () =>
+            general.BindButton("Reset to server values", "Reset", "Pull settings from server and apply them", () =>
             {
                 if(!ServerConfig.AllowOverride)
                 {
@@ -99,9 +96,14 @@ namespace SkillDistribution.Helpers
                 ServerConfig.Load(true);
                 Notifications.ShowNotification("Applied server settings");
             });
-            
-            ShowDebug = config.Bind(
-                "9. Debug",
+
+            ApplyMultipliers = _mults.BindConfig(
+                "Enable multipliers",
+                false,
+                "Whether to apply multipliers listed below (doesn't apply to workout - use 'Experience multiplier (gym)' instead)"
+            );
+
+            ShowDebug = debug.BindConfig(
                 "Debug logs",
                 false,
                 "Log debug info to Player.log"
@@ -117,52 +119,39 @@ namespace SkillDistribution.Helpers
                 CauseFatigue,
                 ExperienceMultiplier,
                 GymExperienceMultiplier,
+                ApplyMultipliers,
             ];
 
             ServerConfig.Load();
         }
 
-        private static ConfigDescription MakeDescription(string description, int order)
+        public static void BuildMultipliers()
         {
-            return new ConfigDescription(
-                description,
-                null,
-                new ConfigurationManagerAttributes
-                {
-                    IsAdvanced = false,
-                    Order = order,
-                }
-            );
-        }
-
-        public static void BindButton(this ConfigFile config, string section, string key, string text, string description, int order, Action action)
-        {
-            config.Bind(section, key, "", 
-                new ConfigDescription(description, null, new ConfigurationManagerAttributes
-                {
-                    CustomDrawer = entry =>
-                    {
-                        if (GUILayout.Button(text, GUILayout.ExpandWidth(true)))
-                        {
-                            action();
-                        }
-                    },
-                    Order = order,
-                })
-            );
-        }
-
-        public static void SetReadOnly(this ConfigEntryBase entry, bool readOnly)
-        {
-            ConfigurationManagerAttributes attributes = (ConfigurationManagerAttributes)
-                entry.Description.Tags.FirstOrDefault(t => t.GetType() == typeof(ConfigurationManagerAttributes));
-
-            if(attributes == null)
+            if (_mults is null)
             {
+                Plugin.LogSource?.LogError("Failed to build multipliers - _mults is null");
                 return;
             }
 
-            attributes.ReadOnly = readOnly;
+            SkillManager skillManager = ClientAppUtils.GetClientApp().GetClientBackEndSession().Profile.Skills;
+
+            foreach (SkillClass skill in skillManager.DisplayList)
+            {
+                if (skill.Locked)
+                {
+                    continue;
+                }
+
+                ConfigEntry<float> entry = _mults.BindConfig(
+                    $"{skill.Id} multiplier",
+                    1f,
+                    $"Set distributed XP multiplier when elite {skill.Id} is source of the XP. Cumulates with global experience multiplier!"
+                );
+
+                SkillMults.Add(skill.Id, entry);
+            }
+
+            ServerConfig.LoadMultipliers();
         }
     }
 }

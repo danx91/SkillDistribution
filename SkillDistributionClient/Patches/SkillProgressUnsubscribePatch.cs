@@ -21,14 +21,14 @@ namespace SkillDistribution.Patches
         }
 
         [PatchPrefix]
-        static bool Prefix(SkillClass __instance)
+        static bool Prefix()
         {
             AbstractSkillUnsubscribePatch._fromMethod3 = true;
             return true;
         }
 
         [PatchPostfix]
-        static void Postfix(SkillClass __instance)
+        static void Postfix()
         {
             AbstractSkillUnsubscribePatch._fromMethod3 = false;
         }

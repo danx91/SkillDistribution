@@ -4,6 +4,7 @@ using SkillDistribution.Helpers;
 using SPT.Reflection.Patching;
 using System.Reflection;
 using UnityEngine;
+using ZGFueDkx.ZGCLib.helpers;
 
 namespace SkillDistribution.Patches
 {
@@ -17,8 +18,8 @@ namespace SkillDistribution.Patches
         [PatchPostfix]
         static void Postfix(SkillClass ___skillClass, GameObject ____effectivenessDown, GameObject ____effectivenessUp)
         {
-            ____effectivenessDown.SetActive(___skillClass.Effectiveness < 1f && Utils.IsInRaid());
-            ____effectivenessUp.SetActive(___skillClass.Effectiveness > 1f && Utils.IsInRaid());
+            ____effectivenessDown.SetActive(___skillClass.Effectiveness < 1f && RaidUtils.IsInRaid());
+            ____effectivenessUp.SetActive(___skillClass.Effectiveness > 1f && RaidUtils.IsInRaid());
         }
     }
 }

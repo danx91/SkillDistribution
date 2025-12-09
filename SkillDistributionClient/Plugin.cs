@@ -1,13 +1,15 @@
 ﻿using BepInEx;
+using BepInEx.Configuration;
 using BepInEx.Logging;
 using EFT;
 using SkillDistribution.Helpers;
 using SkillDistribution.Patches;
+using System.IO;
 
 namespace SkillDistribution
 {
     [
-        BepInPlugin("com.zgfuedkx.skilldistribution", "SkillDistribution", "1.2.1"),
+        BepInPlugin("com.zgfuedkx.skilldistribution", "ZGFueDkx-SkillDistribution", "1.2.2"),
         BepInDependency("com.SPT.core", "4.0.0"),
     ]
     public class Plugin : BaseUnityPlugin
@@ -21,6 +23,7 @@ namespace SkillDistribution
 
             Settings.Init(Config);
 
+            new ProfileSelectionPatch().Enable();
             SkillProgressUnsubscribePatch.EnableAll();
             new AbstractSkillPatch().Enable();
             new OnGameStartedPatch().Enable();
@@ -35,7 +38,7 @@ namespace SkillDistribution
         {
             if (Settings.ShowDebug!.Value)
             {
-                LogSource!.LogDebug(msg);
+                LogSource?.LogDebug(msg);
             }
         }
     }

@@ -43,7 +43,7 @@ namespace SkillDistribution.Patches
                 return;
             }
 
-            SkillHelper.DistributeSkillExperience(skill.SkillManager, xpLeft);
+            SkillHelper.DistributeSkillExperience(skill.SkillManager, xpLeft, __instance.Id);
         }
     }
 }

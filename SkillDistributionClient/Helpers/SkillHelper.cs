@@ -1,4 +1,5 @@
-﻿using Comfort.Common;
+﻿using BepInEx.Configuration;
+using Comfort.Common;
 using EFT;
 using System;
 using System.Collections.Generic;
@@ -38,11 +39,8 @@ namespace SkillDistribution.Helpers
         public static readonly float ELITE_LEVEL = 5100f;
 
         private static bool _inDistribute = false;
-        //private static readonly AccessTools.FieldRef<SkillClass, float> _pointsEarnedRef = AccessTools.FieldRefAccess<SkillClass, float>("Float_2");
-        //private static readonly AccessTools.FieldRef<SkillClass, float> _effectivenessRef = AccessTools.FieldRefAccess<SkillClass, float>("Float_3");
-        //private static readonly AccessTools.FieldRef<SkillClass, float> _fatigueResetRef = AccessTools.FieldRefAccess<SkillClass, float>("float_4");
 
-        public static void DistributeSkillExperience(SkillManager manager, float xp)
+        public static void DistributeSkillExperience(SkillManager manager, float xp, ESkillId source)
         {
             if(_inDistribute)
             {
@@ -55,13 +53,25 @@ namespace SkillDistribution.Helpers
             try
             {
                 float origXp = xp;
-
                 xp *= Settings.ExperienceMultiplier!.Value;
 
-                Plugin.LogDebug($"Distribute XP - xp: {xp}, orig: {origXp}");
+                float postGlobal = xp;
+                if(Settings.ApplyMultipliers!.Value)
+                {
+                    if(Settings.SkillMults.TryGetValue(source, out ConfigEntry<float> mult))
+                    {
+                        xp *= mult.Value;
+                    }
+                    else
+                    {
+                        Plugin.LogDebug($"Failed to get multiplier for skill ${source}");
+                    }
+                }
+
+                Plugin.LogDebug($"Distribute XP - final: {xp}, post global: {postGlobal}, orig: {origXp}");
 
                 List<SkillClass>? selectedSkills = SelectSkills(manager, ref xp);
-                if (selectedSkills == null || selectedSkills.Count == 0)
+                if (selectedSkills is null || selectedSkills.Count == 0)
                 {
                     Plugin.LogDebug("Failed to distribute skill XP - no skills selected! Abort...");
                     return;
@@ -74,8 +84,8 @@ namespace SkillDistribution.Helpers
             }
             catch (Exception e)
             {
-                Plugin.LogSource!.LogError($"Error while distributing XP");
-                Plugin.LogSource!.LogError(e.ToString());
+                Plugin.LogSource?.LogError($"Error while distributing XP");
+                Plugin.LogSource?.LogError(e.ToString());
             }
             finally
             {
@@ -147,23 +157,17 @@ namespace SkillDistribution.Helpers
                 xp = skill.UseEffectiveness(xp);
             } else if(Settings.CauseFatigue!.Value)
             {
-                //if (Time.time > _fatigueResetRef(skill))
                 if (Time.time > skill.Float_4)
                 {
-                    //_effectivenessRef(skill) = 1f;
-                    //_pointsEarnedRef(skill) = Mathf.Min(skill.PointsEarned, (float) Singleton<BackendConfigSettingsClass>.Instance.SkillFreshPoints);
                     skill.Float_3 = 1f;
                     skill.Float_2 = Mathf.Min(skill.PointsEarned, (float)Singleton<BackendConfigSettingsClass>.Instance.SkillFreshPoints);
                 }
 
-                //_pointsEarnedRef(skill) += xp;
-                //_effectivenessRef(skill) = skill.SkillManager.GetEffectiveness((int) (skill.PointsEarned));
                 skill.Float_2 += xp;
                 skill.Float_3 = skill.SkillManager.GetEffectiveness((int) (skill.PointsEarned));
 
                 if(skill.Effectiveness <= 1.0f)
                 {
-                    //_fatigueResetRef(skill) = Time.time + (float) Singleton<BackendConfigSettingsClass>.Instance.SkillFatigueReset;
                     skill.Float_4 = Time.time + (float) Singleton<BackendConfigSettingsClass>.Instance.SkillFatigueReset;
                 }
             }

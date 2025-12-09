@@ -32,10 +32,10 @@ namespace SkillDistribution.Patches
             SkillClass[]? skills = GetWorkoutSkills(__instance, __instance.QteHandleData_0, manager,
                 out float xpMult, out QteEffect.SkillExperienceMultiplierData[]? multipliers);
 
-            if(skills == null)
+            if(skills is null)
             {
                 Plugin.LogDebug("Workout skills are null. Abort...");
-                return false;
+                return true;
             }
 
             float effectiveness = (__instance.HealthControllerClass.HasSevereMusclePainEffect() ?
@@ -110,7 +110,7 @@ namespace SkillDistribution.Patches
 
             xpMult = 1.0f;
             List<SkillClass>? skills = SkillHelper.SelectSkills(manager, ref xpMult);
-            if (skills == null || qteAllEffects.Length == 0)
+            if (skills is null || qteAllEffects.Length == 0)
             {
                 Plugin.LogDebug("Gym distribution failed!");
 

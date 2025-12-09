@@ -6,13 +6,13 @@
 
 	// Determines how XP is distributed
 	// Allowed modes:
-		// Equal - All experience is equally distributed to all skills (if there is not enough XP, random will be used instead)
-		// RoundRobin - Distribute XP to one skill after another in cyclic manner
-		// Random - Distribute XP to random skill(s)
-		// WeightedRandomMin - Distribute XP to random skill(s), skill with lower level have higher chance
-		// WeightedRandomMax - Distribute XP to random skill(s), skill with higher level have higher chance
-		// Min - Distribute XP to skill(s) with lowest level
-		// Max - Distribute XP to skill(s) with highest level
+	// Equal - All experience is equally distributed to all skills (if there is not enough XP, random will be used instead)
+	// RoundRobin - Distribute XP to one skill after another in cyclic manner
+	// Random - Distribute XP to random skill(s)
+	// WeightedRandomMin - Distribute XP to random skill(s), skill with lower level have higher chance
+	// WeightedRandomMax - Distribute XP to random skill(s), skill with higher level have higher chance
+	// Min - Distribute XP to skill(s) with lowest level
+	// Max - Distribute XP to skill(s) with highest level
 	// My personal favorite is WeightedRandomMax (so I put it as default mode) but feel free to experiment with different ones
 	// Default: WeightedRandomMax
 	"distribution_mode": "WeightedRandomMax",
@@ -31,7 +31,7 @@
 	// When set to false, above example will skip stress resistance bonus but will keep metabolism bonus
 	// Default: true
 	"use_bonuses": true,
-	
+
 	// Should distributed XP use and cause target skill fatigue?
 	// It is recommended to set this to false if using Random, WeightedRandomMin, WeightedRandomMax, Min or Max as these modes will quickly cause fatigue
 	// Also, keep in mind that setting this to false will prevent negative effects of effectiveness (fatigue) as well as positive effects (150% on first gained point)!
@@ -53,5 +53,53 @@
 	// Multiplier of distributed XP during workout
 	// This multiplier is applied before any other multipliers
 	// Default: 1
-	"gym_multiplier": 1
+	"gym_multiplier": 1,
+
+	// Should per skill multipliers be used?
+	// These multipliers are applied after 'xp_multiplier' and cumulate with it. Don't cumulate with `gym_multiplier`.
+	// Default: false
+	"enable_multipliers": false,
+
+	// Per skill multipliers
+	// These multipliers are applied after 'xp_multiplier' and cumulate with it. Don't cumulate with `gym_multiplier`.
+	// If you use some mod that adds new skills, you have to manually enter skill IDs here
+	// If some skill multiplier is missing and 'allow_override' is false, x1 multiplier will be used.
+	// Default: 1.0
+	"skill_multipliers": {
+		"Endurance": 1.0,
+		"Strength": 1.0,
+		"Vitality": 1.0,
+		"Health": 1.0,
+		"StressResistance": 1.0,
+		"Metabolism": 1.0,
+		"Immunity": 1.0,
+		"Perception": 1.0,
+		"Intellect": 1.0,
+		"Attention": 1.0,
+		"Charisma": 1.0,
+		"Pistol": 1.0,
+		"Revolver": 1.0,
+		"SMG": 1.0,
+		"Assault": 1.0,
+		"Shotgun": 1.0,
+		"Sniper": 1.0,
+		"LMG": 1.0,
+		"HMG": 1.0,
+		"Launcher": 1.0,
+		"AttachedLauncher": 1.0,
+		"Throwing": 1.0,
+		"Melee": 1.0,
+		"DMR": 1.0,
+		"AimDrills": 1.0,
+		"TroubleShooting": 1.0,
+		"Surgery": 1.0,
+		"CovertMovement": 1.0,
+		"Search": 1.0,
+		"MagDrills": 1.0,
+		"LightVests": 1.0,
+		"HeavyVests": 1.0,
+		"WeaponTreatment": 1.0,
+		"Crafting": 1.0,
+		"HideoutManagement": 1.0
+	}
 }
