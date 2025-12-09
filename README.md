@@ -25,7 +25,7 @@ You can change the server config in `SPT/user/mods/SkillDistribution/config/conf
 ### Client config
 You can access config while in-game by pressing `F12` key and then selecting `SkillDistribution` tab
 
-[!config menu](/images/settings.png)
+![config menu](/images/settings.png)
 
 * **Experience distribution mode** - Determines how skill experience is distributed
 * **Skills count** - Number of skills to distribute experience to
