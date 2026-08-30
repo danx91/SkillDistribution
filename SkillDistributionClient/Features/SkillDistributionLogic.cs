@@ -1,15 +1,16 @@
 ﻿using BepInEx.Configuration;
 using Comfort.Common;
 using EFT;
+using SkillDistribution.Config;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
-using static SkillDistribution.Helpers.SkillDistributions;
+using static SkillDistribution.Features.DistributionModes;
 
-namespace SkillDistribution.Helpers
+namespace SkillDistribution.Features
 {
-    internal static class SkillHelper
+    internal static class SkillDistributionLogic
     {
         public enum EDistributionMode
         {
@@ -42,7 +43,7 @@ namespace SkillDistribution.Helpers
 
         public static void DistributeSkillExperience(SkillManager manager, float xp, ESkillId source)
         {
-            if(_inDistribute)
+            if (_inDistribute)
             {
                 Plugin.LogDebug("Already in distribute. Abort...");
                 return;
@@ -56,9 +57,9 @@ namespace SkillDistribution.Helpers
                 xp *= Settings.ExperienceMultiplier!.Value;
 
                 float postGlobal = xp;
-                if(Settings.ApplyMultipliers!.Value)
+                if (Settings.ApplyMultipliers!.Value)
                 {
-                    if(Settings.SkillMults.TryGetValue(source, out ConfigEntry<float> mult))
+                    if (Settings.SkillMults.TryGetValue(source, out ConfigEntry<float> mult))
                     {
                         xp *= mult.Value;
                     }
@@ -70,14 +71,20 @@ namespace SkillDistribution.Helpers
 
                 Plugin.LogDebug($"Distribute XP - final: {xp}, post global: {postGlobal}, orig: {origXp}");
 
-                List<SkillClass>? selectedSkills = SelectSkills(manager, ref xp);
+                if (xp <= MIN_XP)
+                {
+                    Plugin.LogDebug($"XP too low. Abort...");
+                    return;
+                }
+
+                List<Skill>? selectedSkills = SelectSkills(manager, ref xp);
                 if (selectedSkills is null || selectedSkills.Count == 0)
                 {
                     Plugin.LogDebug("Failed to distribute skill XP - no skills selected! Abort...");
                     return;
                 }
 
-                foreach (SkillClass skill in selectedSkills)
+                foreach (Skill skill in selectedSkills)
                 {
                     ApplySkillExperience(skill, xp);
                 }
@@ -93,9 +100,9 @@ namespace SkillDistribution.Helpers
             }
         }
 
-        public static List<SkillClass>? SelectSkills(SkillManager manager, ref float xp)
+        public static List<Skill>? SelectSkills(SkillManager manager, ref float xp)
         {
-            if (!GetApplicableSkills(manager, out List<SkillClass> skills))
+            if (!GetApplicableSkills(manager, out List<Skill> skills))
             {
                 Plugin.LogDebug("Failed to distribute skill XP - no non-elite skills found! Abort...");
                 return null;
@@ -130,13 +137,13 @@ namespace SkillDistribution.Helpers
             }
         }
 
-        private static bool GetApplicableSkills(SkillManager manager, out List<SkillClass> skills)
+        private static bool GetApplicableSkills(SkillManager manager, out List<Skill> skills)
         {
             skills = [];
 
-            foreach (SkillClass skill in manager.DisplayList)
+            foreach (Skill skill in manager.DisplayList)
             {
-                if(!skill.Locked && skill.Current < ELITE_LEVEL)
+                if (!skill.Locked && skill.Current < ELITE_LEVEL)
                 {
                     skills.Add(skill);
                 }
@@ -145,30 +152,31 @@ namespace SkillDistribution.Helpers
             return skills.Count > 0;
         }
 
-        public static void ApplySkillExperience(SkillClass skill, float xp)
+        public static void ApplySkillExperience(Skill skill, float xp)
         {
             float origXp = xp;
             float xpPre = skill.Current;
 
             skill.SkillManager.SkillProgress.Complete(skill, xp);
 
-            if(Settings.UseEffectiveness!.Value)
+            if (Settings.UseEffectiveness!.Value)
             {
                 xp = skill.UseEffectiveness(xp);
-            } else if(Settings.CauseFatigue!.Value)
+            }
+            else if (Settings.CauseFatigue!.Value)
             {
-                if (Time.time > skill.Float_4)
+                if (Time.time > skill._fatigueTimer)
                 {
-                    skill.Float_3 = 1f;
-                    skill.Float_2 = Mathf.Min(skill.PointsEarned, (float)Singleton<BackendConfigSettingsClass>.Instance.SkillFreshPoints);
+                    skill._effectiveness = 1f;
+                    skill._pointsEarned = Mathf.Min(skill.PointsEarned, Singleton<GlobalConfiguration>.Instance.SkillFreshPoints);
                 }
 
-                skill.Float_2 += xp;
-                skill.Float_3 = skill.SkillManager.GetEffectiveness((int) (skill.PointsEarned));
+                skill._pointsEarned += xp;
+                skill._effectiveness = skill.SkillManager.GetEffectiveness((int)skill.PointsEarned);
 
-                if(skill.Effectiveness <= 1.0f)
+                if (skill.Effectiveness <= 1.0f)
                 {
-                    skill.Float_4 = Time.time + (float) Singleton<BackendConfigSettingsClass>.Instance.SkillFatigueReset;
+                    skill._fatigueTimer = Time.time + Singleton<GlobalConfiguration>.Instance.SkillFatigueReset;
                 }
             }
 
@@ -176,18 +184,18 @@ namespace SkillDistribution.Helpers
 
             if (Settings.UseBonuses!.Value)
             {
-                xp = (float) skill.SkillManager.BonusController.Calculate(skill, (double) xp);
+                xp = (float)skill.SkillManager.BonusController.Calculate(skill, (double)xp);
             }
 
             float postBonus = xp;
 
-            if(skill.Level < 9)
+            if (skill.Level < 9)
             {
                 xp = skill.CalculateExpOnFirstLevels(xp);
             }
 
             skill.SetCurrent(skill.Current + xp, true);
-            skill.LastCall = EFTDateTimeClass.UtcNow;
+            skill.LastCall = DateTimeExtensions.UtcNow;
 
             Plugin.LogDebug($"\tskill: {skill.Id}, xp: {origXp}, effectiveness: {postFatigue}, bonus: {postBonus}, lvlCorr: {xp}; pre: {xpPre}, final: {skill.Current}");
         }

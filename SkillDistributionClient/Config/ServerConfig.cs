@@ -1,13 +1,14 @@
 ﻿using BepInEx.Configuration;
 using EFT;
 using Newtonsoft.Json;
+using SkillDistribution.Features;
 using SPT.Common.Http;
 using System;
 using System.Collections.Generic;
 using ZGFueDkx.ZGCLib.Config;
 using ZGFueDkx.ZGCLib.Helpers;
 
-namespace SkillDistribution.Helpers
+namespace SkillDistribution.Config
 {
     internal static class ServerConfig
     {
@@ -22,21 +23,21 @@ namespace SkillDistribution.Helpers
 
             string response = RequestHandler.GetJson("/skill-distribution/config");
 
-            SkillDistributionConfig? config = JsonConvert.DeserializeObject<SkillDistributionConfig>(
+            ServerConfigModel? config = JsonConvert.DeserializeObject<ServerConfigModel>(
                 response,
                 JsonSettingsFactory.GetJsonSerializerSettings(Plugin.LogSource)
             );
 
             Plugin.LogDebug(response);
 
-            if(config is null)
+            if (config is null)
             {
                 Plugin.LogSource?.LogError("Failed to parse _questData!");
                 Plugin.LogSource?.LogError(response);
                 return;
             }
 
-            if(config.AllowOverride is bool allowOverride)
+            if (config.AllowOverride is bool allowOverride)
             {
                 AllowOverride = allowOverride;
 
@@ -61,7 +62,7 @@ namespace SkillDistribution.Helpers
                 return;
             }
 
-            if (config.DistributionMode is string distributionMode && Enum.TryParse(distributionMode, true, out SkillHelper.EDistributionMode mode))
+            if (config.DistributionMode is string distributionMode && Enum.TryParse(distributionMode, true, out SkillDistributionLogic.EDistributionMode mode))
             {
                 Settings.DistributionMode!.Value = mode;
                 Plugin.LogDebug($"Distribution mode: {mode}");
@@ -136,7 +137,7 @@ namespace SkillDistribution.Helpers
             }
         }
 
-        public static void TryApply<T> (
+        public static void TryApply<T>(
             T? value,
             ConfigEntry<T> entry
         ) where T : struct

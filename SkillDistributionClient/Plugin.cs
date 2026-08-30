@@ -1,16 +1,14 @@
 ﻿using BepInEx;
-using BepInEx.Configuration;
 using BepInEx.Logging;
 using EFT;
-using SkillDistribution.Helpers;
+using SkillDistribution.Config;
 using SkillDistribution.Patches;
-using System.IO;
 
 namespace SkillDistribution
 {
     [
-        BepInPlugin("com.zgfuedkx.skilldistribution", "ZGFueDkx-SkillDistribution", "1.2.2"),
-        BepInDependency("com.SPT.core", "4.0.0"),
+        BepInPlugin("com.zgfuedkx.skilldistribution", "ZGFueDkx-SkillDistribution", "1.3.0"),
+        BepInDependency("com.SPT.core", "4.1.0"),
     ]
     public class Plugin : BaseUnityPlugin
     {

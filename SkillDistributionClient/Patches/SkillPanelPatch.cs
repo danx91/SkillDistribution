@@ -1,6 +1,6 @@
-﻿using EFT.UI;
+﻿using EFT;
+using EFT.UI;
 using HarmonyLib;
-using SkillDistribution.Helpers;
 using SPT.Reflection.Patching;
 using System.Reflection;
 using UnityEngine;
@@ -12,14 +12,14 @@ namespace SkillDistribution.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(SkillPanel), nameof(SkillPanel.method_1));
+            return AccessTools.Method(typeof(SkillPanel), nameof(SkillPanel.OnSkillLevelChanged));
         }
 
         [PatchPostfix]
-        static void Postfix(SkillClass ___skillClass, GameObject ____effectivenessDown, GameObject ____effectivenessUp)
+        private static void Postfix(SkillPanel __instance, Skill ____skill)
         {
-            ____effectivenessDown.SetActive(___skillClass.Effectiveness < 1f && RaidUtils.IsInRaid());
-            ____effectivenessUp.SetActive(___skillClass.Effectiveness > 1f && RaidUtils.IsInRaid());
+            __instance._effectivenessDown.SetActive(____skill.Effectiveness < 1f && RaidUtils.IsInRaid());
+            __instance._effectivenessUp.SetActive(____skill.Effectiveness > 1f && RaidUtils.IsInRaid());
         }
     }
 }

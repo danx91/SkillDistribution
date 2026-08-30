@@ -1,14 +1,16 @@
 ﻿using BepInEx.Configuration;
 using EFT;
+using SkillDistribution.Features;
+using SkillDistribution.Helpers;
 using SPT.Reflection.Utils;
 using System.Collections.Generic;
 using ZGFueDkx.ZGCLib.Config;
 
-namespace SkillDistribution.Helpers
+namespace SkillDistribution.Config
 {
     internal static class Settings
     {
-        public static ConfigEntry<SkillHelper.EDistributionMode>? DistributionMode;
+        public static ConfigEntry<SkillDistributionLogic.EDistributionMode>? DistributionMode;
         public static ConfigEntry<int>? SkillsCount;
         public static ConfigEntry<bool>? AllowGym;
         public static ConfigEntry<bool>? UseBonuses;
@@ -32,7 +34,7 @@ namespace SkillDistribution.Helpers
 
             DistributionMode = general.BindConfig(
                 "Experience distribution mode",
-                SkillHelper.EDistributionMode.WeightedRandomMax,
+                SkillDistributionLogic.EDistributionMode.WeightedRandomMax,
                 "Determines how skill experience is distributed\n" +
                 "Equal - All experience is equally distributed to all skills (if there is not enough XP, random will be used instead)\n" +
                 "RoundRobin - Distribute XP to one skill after another in cyclic manner\n" +
@@ -87,14 +89,14 @@ namespace SkillDistribution.Helpers
 
             general.BindButton("Reset to server values", "Reset", "Pull settings from server and apply them", () =>
             {
-                if(!ServerConfig.AllowOverride)
+                if (!ServerConfig.AllowOverride)
                 {
-                   return;
+                    return;
                 }
 
                 Plugin.LogDebug("Resetting to server values");
                 ServerConfig.Load(true);
-                Notifications.ShowNotification("Applied server settings");
+                NotificationHelper.ShowNotification("Applied server settings");
             });
 
             ApplyMultipliers = _mults.BindConfig(
@@ -135,7 +137,7 @@ namespace SkillDistribution.Helpers
 
             SkillManager skillManager = ClientAppUtils.GetClientApp().GetClientBackEndSession().Profile.Skills;
 
-            foreach (SkillClass skill in skillManager.DisplayList)
+            foreach (Skill skill in skillManager.DisplayList)
             {
                 if (skill.Locked)
                 {

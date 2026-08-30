@@ -13,7 +13,7 @@ namespace SkillDistribution.Patches
         }
 
         [PatchPostfix]
-        static void Postfix(GameWorld __instance)
+        private static void Postfix(GameWorld __instance)
         {
             Plugin.SkillManager = __instance.MainPlayer.Skills;
         }

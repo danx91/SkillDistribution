@@ -1,5 +1,6 @@
-﻿using HarmonyLib;
-using SkillDistribution.Helpers;
+﻿using EFT;
+using HarmonyLib;
+using SkillDistribution.Features;
 using SPT.Reflection.Patching;
 using System.Reflection;
 
@@ -9,20 +10,20 @@ namespace SkillDistribution.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(AbstractSkillClass), nameof(AbstractSkillClass.OnTrigger));
+            return AccessTools.Method(typeof(BaseSkill), nameof(BaseSkill.OnTrigger));
         }
 
         [PatchPrefix]
-        static bool Prefix(AbstractSkillClass __instance, ref float __state)
+        private static bool Prefix(BaseSkill __instance, ref float __state)
         {
             __state = __instance.Current;
             return true;
         }
 
         [PatchPostfix]
-        static void Postfix(AbstractSkillClass __instance, float val, float __state)
+        private static void Postfix(BaseSkill __instance, float val, float __state)
         {
-            if (__instance is not SkillClass skill || Plugin.SkillManager is null || Plugin.SkillManager != skill.SkillManager)
+            if (__instance is not Skill skill || Plugin.SkillManager is null || Plugin.SkillManager != skill.SkillManager)
             {
                 return;
             }
@@ -31,19 +32,19 @@ namespace SkillDistribution.Patches
 
             Plugin.LogDebug($"Skill {skill.Id} xp change by {val}. Prev: {__state}, Cur: {skill.Current}, xp left: {xpLeft}");
 
-            if(xpLeft < 1.5E-4f)
+            if (xpLeft < 1.5E-4f)
             {
                 Plugin.LogDebug("\tToo close to 0 - return");
                 return;
             }
 
-            if(!skill.IsEliteLevel)
+            if (!skill.IsEliteLevel)
             {
                 Plugin.LogDebug("\tNot elite skill - return");
                 return;
             }
 
-            SkillHelper.DistributeSkillExperience(skill.SkillManager, xpLeft, __instance.Id);
+            SkillDistributionLogic.DistributeSkillExperience(skill.SkillManager, xpLeft, __instance.Id);
         }
     }
 }

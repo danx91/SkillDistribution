@@ -2,11 +2,11 @@
 
 namespace SkillDistribution.Helpers
 {
-    internal static class Notifications
+    internal static class NotificationHelper
     {
         public static void ShowNotification(string message, ENotificationIconType notificationType = ENotificationIconType.Quest)
         {
-            NotificationManagerClass.DisplayNotification(new GClass2551(
+            NotificationManager.DisplayNotification(new CustomNotification(
                 message,
                 ENotificationDurationType.Long,
                 notificationType

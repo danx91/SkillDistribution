@@ -5,7 +5,7 @@ using SPTarkov.Server.Core.Utils;
 
 namespace SkillDistribution
 {
-    [Injectable]
+    [Injectable(TypePriority = OnLoadOrder.Routers + 1)]
     internal class SkillDistributionRouter : StaticRouter
     {
         private static JsonUtil? _jsonUtil;
@@ -20,7 +20,7 @@ namespace SkillDistribution
             return [
                 new RouteAction<EmptyRequestData>(
                     "/skill-distribution/config",
-                    (url, info, sessionId, output) => HandleRoute()
+                    (url, info, sessionId, output, cancellationToken) => HandleRoute()
                 )
             ];
         }

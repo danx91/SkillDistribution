@@ -1,9 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace SkillDistribution.Helpers
+namespace SkillDistribution.Config
 {
-    internal class SkillDistributionConfig
+    internal class ServerConfigModel
     {
         [JsonProperty("allow_override")]
         public bool? AllowOverride { get; set; }

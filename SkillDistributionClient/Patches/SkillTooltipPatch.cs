@@ -1,4 +1,5 @@
-﻿using EFT.UI;
+﻿using EFT;
+using EFT.UI;
 using HarmonyLib;
 using SPT.Reflection.Patching;
 using System.Collections.Generic;
@@ -11,15 +12,15 @@ namespace SkillDistribution.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(SkillTooltip), nameof(SkillTooltip.Show), [typeof(SkillClass)]);
+            return AccessTools.Method(typeof(SkillTooltip), nameof(SkillTooltip.Show), [typeof(Skill)]);
         }
 
         [PatchTranspiler]
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
             var codes = new List<CodeInstruction>(instructions);
 
-            for (int i = 0; i < codes.Count; i++)
+            for (int i = 0; i < codes.Count - 3; i++)
             {
                 if (codes[i].opcode == OpCodes.Ldloc_0 &&
                     codes[i + 1].opcode == OpCodes.Ldfld &&

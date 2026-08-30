@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using EFT;
+using HarmonyLib;
 using SPT.Reflection.Patching;
 using System.Reflection;
 
@@ -17,41 +18,41 @@ namespace SkillDistribution.Patches
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(SkillClass), nameof(SkillClass.method_3));
+            return AccessTools.Method(typeof(Skill), nameof(Skill.UpdateRules));
         }
 
         [PatchPrefix]
-        static bool Prefix()
+        private static bool Prefix()
         {
-            AbstractSkillUnsubscribePatch._fromMethod3 = true;
+            AbstractSkillUnsubscribePatch._fromUpdateRules = true;
             return true;
         }
 
         [PatchPostfix]
-        static void Postfix()
+        private static void Postfix()
         {
-            AbstractSkillUnsubscribePatch._fromMethod3 = false;
+            AbstractSkillUnsubscribePatch._fromUpdateRules = false;
         }
     }
 
     class AbstractSkillUnsubscribePatch : ModulePatch
     {
-        public static bool _fromMethod3 = false;
+        public static bool _fromUpdateRules = false;
 
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(AbstractSkillClass), nameof(AbstractSkillClass.Unsubscribe));
+            return AccessTools.Method(typeof(BaseSkill), nameof(BaseSkill.Unsubscribe));
         }
 
         [PatchPrefix]
-        static bool Prefix(AbstractSkillClass __instance)
+        private static bool Prefix(BaseSkill __instance)
         {
-            if (_fromMethod3)
+            if (_fromUpdateRules)
             {
                 Plugin.LogDebug($"Preventing events unsubscribe on {__instance.Id}");
             }
 
-            return !_fromMethod3;
+            return !_fromUpdateRules;
         }
     }
 }
