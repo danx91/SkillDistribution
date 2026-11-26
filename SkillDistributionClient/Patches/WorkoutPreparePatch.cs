@@ -20,6 +20,7 @@ namespace SkillDistribution.Patches
         {
             WorkoutSession.Current = Settings.AllowGym!.Value && __instance._hideout._session is EftClientBackendSession
                 ? new WorkoutSession(__instance) : null;
+            Plugin.LogDebug(WorkoutSession.Current == null ? "Preparing workout (vanilla)" : "Preparing workout (modded)");
         }
     }
 }

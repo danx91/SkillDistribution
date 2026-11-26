@@ -27,6 +27,7 @@ namespace SkillDistribution.Patches
             if (series == null || series.Workout._hideout._session != __instance ||
                 series.Workout._qteData.Id != id || series.Workout._playerOwner.HideoutOwnerAccountId != aid)
             {
+                Plugin.LogDebug("Using vanilla workout save");
                 return true;
             }
 

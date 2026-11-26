@@ -16,6 +16,7 @@ namespace SkillDistribution.Patches
         [PatchPostfix]
         private static void Postfix(WorkoutBehaviour __instance)
         {
+            Plugin.LogDebug("Workout clear");
             if (WorkoutSession.Current?.Workout == __instance)
             {
                 WorkoutSession.Current = null;

@@ -1,5 +1,6 @@
 using EFT;
 using EFT.Hideout;
+using SkillDistribution.Config;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace SkillDistribution.Features
         {
             HideoutRepresentation hideout = Workout._hideout;
             Seed seed = hideout._randomXorShift?.GetNewSeed() ?? hideout._seed;
-            return new
+            var payload = new
             {
                 workoutId = _id,
                 qteId,
@@ -51,6 +52,16 @@ namespace SkillDistribution.Features
                     .Select(arm => arm.ToString()).ToArray(),
                 finalSeed = new[] { seed.x, seed.y, seed.z, seed.w }
             };
+
+            if (Settings.ShowDebug!.Value)
+            {
+                int successes = payload.results.Count(success => success);
+                string fractures = payload.fracturedArms.Length == 0 ? "none" : string.Join(", ", payload.fracturedArms);
+                Plugin.LogDebug($"Using modded workout save: id={payload.workoutId}, skills={payload.skills.Count}, " +
+                    $"successes={successes}, failures={payload.results.Length - successes}, fractures={fractures}");
+            }
+
+            return payload;
         }
     }
 }

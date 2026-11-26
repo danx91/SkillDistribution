@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace SkillDistribution.Patches
 {
-    class WorkoutBehaviourPatch : ModulePatch
+    class WorkoutCalculateExperiencePatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
@@ -26,6 +26,7 @@ namespace SkillDistribution.Patches
         {
             if (WorkoutSession.Current?.Workout != __instance)
             {
+                Plugin.LogDebug("Using vanilla workout XP");
                 return true;
             }
 
@@ -33,8 +34,10 @@ namespace SkillDistribution.Patches
             QteEffect[] rewards = [.. __instance._qteData.Results[QteData.EQteEffectType.SingleSuccessEffect].Effects
                 .Where(effect => effect.Type == QteEffect.EQteRewardType.Skill)];
             QteEffect[] eligible = [.. rewards.Where(__instance.CG_CalculateExperience)];
+
             if (rewards.Length == 0 || (eligible.Length > 0 && Settings.GymExperienceMultiplier!.Value == 1f))
             {
+                Plugin.LogDebug("Using vanilla workout XP");
                 return true;
             }
 
@@ -43,10 +46,11 @@ namespace SkillDistribution.Patches
 
             if (skills is null)
             {
-                Plugin.LogDebug("Workout skills are null. Abort...");
+                Plugin.LogDebug("No workout skills. Using vanilla workout XP");
                 return true;
             }
 
+            Plugin.LogDebug(eligible.Length > 0 ? "Applying workout XP multiplier" : "Distributing workout XP");
             float effectiveness = (__instance._offlineHealthController.HasSevereMusclePainEffect() ?
                 __instance._offlineHealthController.GetSevereMusclePainSettings().GymEffectivity : (__instance._offlineHealthController.HasMildMusclePainEffect() ?
                 __instance._offlineHealthController.GetMildMusclePainSettings().GymEffectivity : 0f));
