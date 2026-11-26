@@ -2,7 +2,7 @@
 using BepInEx.Logging;
 using EFT;
 using SkillDistribution.Config;
-using SkillDistribution.Patches;
+using SPT.Reflection.Patching;
 
 namespace SkillDistribution
 {
@@ -21,13 +21,7 @@ namespace SkillDistribution
 
             Settings.Init(Config);
 
-            new ProfileSelectionPatch().Enable();
-            SkillProgressUnsubscribePatch.EnableAll();
-            new AbstractSkillPatch().Enable();
-            new OnGameStartedPatch().Enable();
-            new SkillPanelPatch().Enable();
-            new SkillTooltipPatch().Enable();
-            new WorkoutBehaviourPatch().Enable();
+            new PatchManager(this, true).EnablePatches();
 
             LogSource.LogInfo($"SkillDistribution by ZGFueDkx version {Info.Metadata.Version} started");
         }

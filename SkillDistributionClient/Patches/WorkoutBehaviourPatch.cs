@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UI.Hideout;
 
 namespace SkillDistribution.Patches
 {
@@ -22,15 +21,24 @@ namespace SkillDistribution.Patches
         }
 
         [PatchPrefix]
+        [HarmonyPriority(Priority.Last)]
         private static bool Prefix(WorkoutBehaviour __instance)
         {
-            if (!Settings.AllowGym!.Value)
+            if (WorkoutSession.Current?.Workout != __instance)
             {
                 return true;
             }
 
             SkillManager manager = __instance._playerOwner.HideoutPlayer.Skills;
-            Skill[]? skills = GetWorkoutSkills(__instance, __instance._qteData, manager,
+            QteEffect[] rewards = [.. __instance._qteData.Results[QteData.EQteEffectType.SingleSuccessEffect].Effects
+                .Where(effect => effect.Type == QteEffect.EQteRewardType.Skill)];
+            QteEffect[] eligible = [.. rewards.Where(__instance.CG_CalculateExperience)];
+            if (rewards.Length == 0 || (eligible.Length > 0 && Settings.GymExperienceMultiplier!.Value == 1f))
+            {
+                return true;
+            }
+
+            Skill[]? skills = GetWorkoutSkills(rewards, eligible, manager,
                 out float xpMult, out QteEffect.SkillExperienceMultiplierData[]? multipliers);
 
             if (skills is null)
@@ -91,12 +99,9 @@ namespace SkillDistribution.Patches
             return false;
         }
 
-        private static Skill[]? GetWorkoutSkills(WorkoutBehaviour workoutBehaviour, QteHandleData qteHandleData, SkillManager manager,
+        private static Skill[]? GetWorkoutSkills(QteEffect[] qteAllEffects, QteEffect[] qteEffects, SkillManager manager,
             out float xpMult, out QteEffect.SkillExperienceMultiplierData[]? multipliers)
         {
-            QteEffect[] qteAllEffects = qteHandleData.Results[QteData.EQteEffectType.SingleSuccessEffect].Effects;
-            QteEffect[] qteEffects = [.. qteAllEffects.Where(new Func<QteEffect, bool>(workoutBehaviour.CG_CalculateExperience))];
-
             if (qteEffects.Length > 0)
             {
                 QteEffect qteEffect = qteEffects[qteEffects.Length == 1 ? 0 : Singleton<HideoutRepresentation>.Instance.QteRandomNext(0, qteEffects.Length)];
@@ -111,7 +116,7 @@ namespace SkillDistribution.Patches
 
             xpMult = 1.0f;
             List<Skill>? skills = SkillDistributionLogic.SelectSkills(manager, ref xpMult);
-            if (skills is null || qteAllEffects.Length == 0)
+            if (skills is null)
             {
                 Plugin.LogDebug("Gym distribution failed!");
 
@@ -120,7 +125,7 @@ namespace SkillDistribution.Patches
                 return null;
             }
 
-            multipliers = qteAllEffects[Singleton<HideoutRepresentation>.Instance.QteRandomNext(0, qteAllEffects.Length)].SkillExpMultiplierData;
+            multipliers = qteAllEffects[UnityEngine.Random.Range(0, qteAllEffects.Length)].SkillExpMultiplierData;
             return [.. skills];
         }
     }

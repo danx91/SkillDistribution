@@ -5,15 +5,6 @@ using System.Reflection;
 
 namespace SkillDistribution.Patches
 {
-    public static class SkillProgressUnsubscribePatch
-    {
-        public static void EnableAll()
-        {
-            new SkillUnsubscribePatch().Enable();
-            new AbstractSkillUnsubscribePatch().Enable();
-        }
-    }
-
     class SkillUnsubscribePatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
