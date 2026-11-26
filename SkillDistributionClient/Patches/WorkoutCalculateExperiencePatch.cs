@@ -41,6 +41,23 @@ namespace SkillDistribution.Patches
                 return true;
             }
 
+            var mode = Settings.SameCategory!.Value;
+            if (eligible.Length == 0 && mode != Settings.ESameCategoryMode.Disabled)
+            {
+                var availableClasses = SkillDistributionLogic.GetAvailableSkills(manager).Select(skill => skill.Class).ToHashSet();
+                QteEffect[] sameClassRewards = [.. rewards.Where(effect => availableClasses.Contains(manager.GetSkill(effect.Skill).Class))];
+
+                if (sameClassRewards.Length > 0)
+                {
+                    rewards = sameClassRewards;
+                }
+                else if (mode == Settings.ESameCategoryMode.Strict)
+                {
+                    Plugin.LogDebug("No workout recipients in reward classes");
+                    return false;
+                }
+            }
+
             Skill[]? skills = GetWorkoutSkills(rewards, eligible, manager,
                 out float xpMult, out QteEffect.SkillExperienceMultiplierData[]? multipliers);
 
@@ -119,7 +136,7 @@ namespace SkillDistribution.Patches
             }
 
             xpMult = 1.0f;
-            QteEffect source = qteAllEffects[UnityEngine.Random.Range(0, qteAllEffects.Length)];
+            QteEffect source = qteAllEffects[qteAllEffects.Length == 1 ? 0 : UnityEngine.Random.Range(0, qteAllEffects.Length)];
             List<Skill>? skills = SkillDistributionLogic.SelectSkills(manager, manager.GetSkill(source.Skill).Class, ref xpMult);
             if (skills is null)
             {
