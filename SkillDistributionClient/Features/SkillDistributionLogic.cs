@@ -134,9 +134,14 @@ namespace SkillDistribution.Features
             }
         }
 
+        public static IEnumerable<Skill> GetAvailableSkills(SkillManager manager)
+        {
+            return manager.DisplayList.Where(skill => !skill.Locked && skill.Current < ELITE_LEVEL);
+        }
+
         private static List<Skill> GetApplicableSkills(SkillManager manager, ESkillClass skillClass, out bool restrictToClass)
         {
-            List<Skill> skills = [.. manager.DisplayList.Where(skill => !skill.Locked && skill.Current < ELITE_LEVEL)];
+            List<Skill> skills = [.. GetAvailableSkills(manager)];
 
             restrictToClass = Settings.SameCategory!.Value == Settings.ESameCategoryMode.Strict ||
                 (Settings.SameCategory!.Value == Settings.ESameCategoryMode.Loose && skills.Exists(skill => skill.Class == skillClass));
