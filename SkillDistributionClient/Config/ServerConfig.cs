@@ -72,6 +72,9 @@ namespace SkillDistribution.Config
                 Plugin.LogSource?.LogError("Failed to parse distribution_mode");
             }
 
+            Settings.SameCategory!.Value = ParseSameCategory(config.SameCategory);
+            Plugin.LogDebug($"Same category mode: {Settings.SameCategory.Value}");
+
             TryApply(config.SkillsCount, Settings.SkillsCount!);
             TryApply(config.AllowGym, Settings.AllowGym!);
             TryApply(config.UseEffectiveness, Settings.UseEffectiveness!);
@@ -83,6 +86,23 @@ namespace SkillDistribution.Config
             TryApply(config.EnableMultipliers, Settings.ApplyMultipliers!);
 
             LoadMultipliers(force);
+        }
+
+        private static Settings.ESameCategoryMode ParseSameCategory(string? value)
+        {
+            switch (value?.Trim().ToLowerInvariant())
+            {
+                case null:
+                case "disabled":
+                    return Settings.ESameCategoryMode.Disabled;
+                case "strict":
+                    return Settings.ESameCategoryMode.Strict;
+                case "loose":
+                    return Settings.ESameCategoryMode.Loose;
+                default:
+                    Plugin.LogSource?.LogWarning($"Unknown same_category '{value}'. Using Disabled.");
+                    return Settings.ESameCategoryMode.Disabled;
+            }
         }
 
         public static void LoadMultipliers(bool force = false)

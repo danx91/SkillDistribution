@@ -8,10 +8,12 @@ namespace SkillDistribution.Features
 {
     internal static class DistributionModes
     {
-        private static int _roundRobinIndex = -1;
+        private static int _globalRoundRobinIndex = -1;
+        private static readonly Dictionary<ESkillClass, int> _classRoundRobinIndices = [];
 
-        private static bool TryAdjustCount(float xp, ref int count, out float xpPerSkill)
+        private static bool TryAdjustCount(float xp, int available, ref int count, out float xpPerSkill)
         {
+            count = Math.Clamp(count, 1, available);
             if ((xpPerSkill = xp / count) >= MIN_XP)
             {
                 return true;
@@ -36,29 +38,36 @@ namespace SkillDistribution.Features
             if (xpPerSkill < MIN_XP)
             {
                 Plugin.LogDebug("XP per skill is too low - switch to random");
-                return RandomDistribution(skills, ref xp, (int)(xp / MIN_XP));
+                return RandomDistribution(skills, ref xp, skills.Count);
             }
 
             xp = xpPerSkill;
             return skills;
         }
 
-        public static List<Skill> RoundRobinDistribution(List<Skill> skills, ref float xp)
+        public static List<Skill> RoundRobinDistribution(List<Skill> skills, float xp, ESkillClass? skillClass)
         {
-            if (_roundRobinIndex == -1)
+            int index = skillClass.HasValue ? _classRoundRobinIndices.GetValueOrDefault(skillClass.Value, -1) : _globalRoundRobinIndex;
+            if (index == -1)
             {
-                _roundRobinIndex = UnityEngine.Random.Range(0, skills.Count);
+                index = UnityEngine.Random.Range(0, skills.Count);
             }
-            else if (_roundRobinIndex >= skills.Count)
+            else if (index >= skills.Count)
             {
-                _roundRobinIndex = 0;
+                index = 0;
             }
 
-            Plugin.LogDebug($"Round robin ditribution. To ditribute: {xp}, total skills {skills.Count}, index: {_roundRobinIndex}");
-            return
-            [
-                skills[_roundRobinIndex++]
-            ];
+            if (skillClass.HasValue)
+            {
+                _classRoundRobinIndices[skillClass.Value] = index + 1;
+            }
+            else
+            {
+                _globalRoundRobinIndex = index + 1;
+            }
+
+            Plugin.LogDebug($"Round robin distribution. To distribute: {xp}, total skills {skills.Count}, index: {index}");
+            return [skills[index]];
         }
 
         public static List<Skill>? RandomDistribution(List<Skill> skills, ref float xp, int count)
@@ -66,14 +75,9 @@ namespace SkillDistribution.Features
             int dbgCount = count;
             float dbgXp = xp;
 
-            if (!TryAdjustCount(xp, ref count, out xp))
+            if (!TryAdjustCount(xp, skills.Count, ref count, out xp))
             {
                 return null;
-            }
-
-            if (count > skills.Count)
-            {
-                count = skills.Count;
             }
 
             Plugin.LogDebug($"Random ditribution. To ditribute: {dbgXp}, per skill: {xp}, count {count} ({dbgCount}), total skills {skills.Count}");
@@ -98,14 +102,9 @@ namespace SkillDistribution.Features
             int dbgCount = count;
             float dbgXp = xp;
 
-            if (!TryAdjustCount(xp, ref count, out xp))
+            if (!TryAdjustCount(xp, skills.Count, ref count, out xp))
             {
                 return null;
-            }
-
-            if (count > skills.Count)
-            {
-                count = skills.Count;
             }
 
             List<int> indexes = [.. Enumerable.Range(0, skills.Count)];
@@ -125,10 +124,10 @@ namespace SkillDistribution.Features
                 float dice = UnityEngine.Random.Range(0f, sum);
                 Plugin.LogDebug($"{i} : {dice}");
 
-                for (int j = 0; j < skills.Count; j++)
+                for (int j = 0; j < weights.Count; j++)
                 {
                     dice -= weights[j];
-                    if (dice <= 0)
+                    if (dice <= 0 || j == weights.Count - 1)
                     {
                         selectedSkills.Add(skills[indexes[j]]);
 
@@ -149,14 +148,9 @@ namespace SkillDistribution.Features
             int dbgCount = count;
             float dbgXp = xp;
 
-            if (!TryAdjustCount(xp, ref count, out xp))
+            if (!TryAdjustCount(xp, skills.Count, ref count, out xp))
             {
                 return null;
-            }
-
-            if (count > skills.Count)
-            {
-                count = skills.Count;
             }
 
             Plugin.LogDebug($"Min/Max ditribution. To ditribute: {dbgXp}, per skill: {xp}, count {count} ({dbgCount}), total skills {skills.Count}");

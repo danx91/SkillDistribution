@@ -119,7 +119,8 @@ namespace SkillDistribution.Patches
             }
 
             xpMult = 1.0f;
-            List<Skill>? skills = SkillDistributionLogic.SelectSkills(manager, ref xpMult);
+            QteEffect source = qteAllEffects[UnityEngine.Random.Range(0, qteAllEffects.Length)];
+            List<Skill>? skills = SkillDistributionLogic.SelectSkills(manager, manager.GetSkill(source.Skill).Class, ref xpMult);
             if (skills is null)
             {
                 Plugin.LogDebug("Gym distribution failed!");
@@ -129,7 +130,7 @@ namespace SkillDistribution.Patches
                 return null;
             }
 
-            multipliers = qteAllEffects[UnityEngine.Random.Range(0, qteAllEffects.Length)].SkillExpMultiplierData;
+            multipliers = source.SkillExpMultiplierData;
             return [.. skills];
         }
     }

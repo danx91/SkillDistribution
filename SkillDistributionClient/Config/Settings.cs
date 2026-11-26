@@ -4,15 +4,27 @@ using SkillDistribution.Features;
 using SkillDistribution.Helpers;
 using SPT.Reflection.Utils;
 using System.Collections.Generic;
+using System.ComponentModel;
 using ZGFueDkx.ZGCLib.Config;
 
 namespace SkillDistribution.Config
 {
     internal static class Settings
     {
+        public enum ESameCategoryMode
+        {
+            [Description("Disabled")]
+            Disabled,
+            [Description("Strict")]
+            Strict,
+            [Description("Loose")]
+            Loose
+        }
+
         public static ConfigEntry<SkillDistributionLogic.EDistributionMode>? DistributionMode;
         public static ConfigEntry<int>? SkillsCount;
         public static ConfigEntry<bool>? AllowGym;
+        public static ConfigEntry<ESameCategoryMode>? SameCategory;
         public static ConfigEntry<bool>? UseBonuses;
         public static ConfigEntry<bool>? UseEffectiveness;
         public static ConfigEntry<bool>? CauseFatigue;
@@ -55,6 +67,12 @@ namespace SkillDistribution.Config
                 "Allow gym",
                 true,
                 "Whether or not XP from gym should be also distributed if strength/endurance is maxed"
+            );
+
+            SameCategory = general.BindConfig(
+                "Same skill category",
+                ESameCategoryMode.Disabled,
+                "Whether or not XP should be distributed only to skills in the same category (i.e. strength only to other physical skills)"
             );
 
             UseBonuses = general.BindConfig(
@@ -116,6 +134,7 @@ namespace SkillDistribution.Config
                 DistributionMode,
                 SkillsCount,
                 AllowGym,
+                SameCategory,
                 UseBonuses,
                 UseEffectiveness,
                 CauseFatigue,

@@ -16,6 +16,9 @@ namespace SkillDistribution
         [JsonPropertyName("allow_gym")]
         public bool? AllowGym { get; set; }
 
+        [JsonPropertyName("same_category")]
+        public string? SameCategory { get; set; }
+
         [JsonPropertyName("use_bonuses")]
         public bool? UseBonuses { get; set; }
 

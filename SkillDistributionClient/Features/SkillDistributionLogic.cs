@@ -5,6 +5,7 @@ using SkillDistribution.Config;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using UnityEngine;
 using static SkillDistribution.Features.DistributionModes;
 
@@ -41,7 +42,7 @@ namespace SkillDistribution.Features
 
         private static bool _inDistribute = false;
 
-        public static void DistributeSkillExperience(SkillManager manager, float xp, ESkillId source)
+        public static void DistributeSkillExperience(SkillManager manager, float xp, Skill source)
         {
             if (_inDistribute)
             {
@@ -59,13 +60,13 @@ namespace SkillDistribution.Features
                 float postGlobal = xp;
                 if (Settings.ApplyMultipliers!.Value)
                 {
-                    if (Settings.SkillMults.TryGetValue(source, out ConfigEntry<float> mult))
+                    if (Settings.SkillMults.TryGetValue(source.Id, out ConfigEntry<float> mult))
                     {
                         xp *= mult.Value;
                     }
                     else
                     {
-                        Plugin.LogDebug($"Failed to get multiplier for skill ${source}");
+                        Plugin.LogDebug($"Failed to get multiplier for skill {source.Id}");
                     }
                 }
 
@@ -77,7 +78,7 @@ namespace SkillDistribution.Features
                     return;
                 }
 
-                List<Skill>? selectedSkills = SelectSkills(manager, ref xp);
+                List<Skill>? selectedSkills = SelectSkills(manager, source.Class, ref xp);
                 if (selectedSkills is null || selectedSkills.Count == 0)
                 {
                     Plugin.LogDebug("Failed to distribute skill XP - no skills selected! Abort...");
@@ -100,9 +101,10 @@ namespace SkillDistribution.Features
             }
         }
 
-        public static List<Skill>? SelectSkills(SkillManager manager, ref float xp)
+        public static List<Skill>? SelectSkills(SkillManager manager, ESkillClass skillClass, ref float xp)
         {
-            if (!GetApplicableSkills(manager, out List<Skill> skills))
+            List<Skill> skills = GetApplicableSkills(manager, skillClass, out bool restrictToClass);
+            if (skills.Count == 0)
             {
                 Plugin.LogDebug("Failed to distribute skill XP - no non-elite skills found! Abort...");
                 return null;
@@ -110,17 +112,12 @@ namespace SkillDistribution.Features
 
             int skillsCount = Settings.SkillsCount!.Value;
 
-            if (skillsCount < 1)
-            {
-                skillsCount = 1;
-            }
-
             switch (Settings.DistributionMode!.Value)
             {
                 case EDistributionMode.Equal:
                     return EqualDistribution(skills, ref xp);
                 case EDistributionMode.RoundRobin:
-                    return RoundRobinDistribution(skills, ref xp);
+                    return RoundRobinDistribution(skills, xp, restrictToClass ? skillClass : null);
                 case EDistributionMode.Random:
                     return RandomDistribution(skills, ref xp, skillsCount);
                 case EDistributionMode.WeightedRandomMin:
@@ -137,19 +134,19 @@ namespace SkillDistribution.Features
             }
         }
 
-        private static bool GetApplicableSkills(SkillManager manager, out List<Skill> skills)
+        private static List<Skill> GetApplicableSkills(SkillManager manager, ESkillClass skillClass, out bool restrictToClass)
         {
-            skills = [];
+            List<Skill> skills = [.. manager.DisplayList.Where(skill => !skill.Locked && skill.Current < ELITE_LEVEL)];
 
-            foreach (Skill skill in manager.DisplayList)
+            restrictToClass = Settings.SameCategory!.Value == Settings.ESameCategoryMode.Strict ||
+                (Settings.SameCategory!.Value == Settings.ESameCategoryMode.Loose && skills.Exists(skill => skill.Class == skillClass));
+
+            if (restrictToClass)
             {
-                if (!skill.Locked && skill.Current < ELITE_LEVEL)
-                {
-                    skills.Add(skill);
-                }
+                skills.RemoveAll(skill => skill.Class != skillClass);
             }
 
-            return skills.Count > 0;
+            return skills;
         }
 
         public static void ApplySkillExperience(Skill skill, float xp)
